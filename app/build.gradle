@@ -23,15 +23,26 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        //see tutorial:
+        // https://medium.com/@cassioso/a-strategy-to-secure-your-api-keys-using-gradle-b9c107272860
+        manifestPlaceholders = [
+                GOOGLE_PLACES_API_KEY:keystoreProperties['googlePlacesApiKey']]
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
+            }
         }
+    buildTypes.each {
+        it.buildConfigField('String', 'GOOGLE_PLACES_API_KEY',
+                keystoreProperties['googlePlacesApiKey'])
     }
-}
+    }
+
+
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
