@@ -1,4 +1,4 @@
-package com.ventoray.shaut;
+package com.ventoray.shaut.widget;
 
 import android.app.Service;
 import android.content.Context;
