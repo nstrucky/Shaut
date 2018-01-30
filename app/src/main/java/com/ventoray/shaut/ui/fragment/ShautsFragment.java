@@ -19,6 +19,15 @@ public class ShautsFragment extends Fragment {
         // Required empty public constructor
     }
 
+    public static ShautsFragment newInstance(int position) {
+
+        Bundle args = new Bundle();
+
+        ShautsFragment fragment = new ShautsFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

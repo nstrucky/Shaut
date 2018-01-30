@@ -1,5 +1,7 @@
 package com.ventoray.shaut.ui;
 
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,78 +14,40 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.ventoray.shaut.MainActivityPagerAdapter;
 import com.ventoray.shaut.R;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button button1;
-    Button button2;
-    Toast toast;
-    FirebaseDatabase database;
+
+    @BindView(R.id.viewPager_main) ViewPager viewPager;
+    @BindView(R.id.tablayout) TabLayout tabLayout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
-        database = FirebaseDatabase.getInstance();
-
-        button1 = (Button) findViewById(R.id.button1);
-        button2 = (Button) findViewById(R.id.button2);
-
-        button1.setOnClickListener(clickListener);
-        button2.setOnClickListener(clickListener);
-
-        toast = Toast.makeText(this, null, Toast.LENGTH_SHORT);
+        setUpViewPager();
     }
 
 
+    private void setUpViewPager() {
+        tabLayout.setTabMode(TabLayout.MODE_FIXED);
+//        mTabLayout.setTabTextColors(getColor(R.color.colorPrimary), getColor(R.color.yellow));
+        tabLayout.setupWithViewPager(viewPager);
+        viewPager.setAdapter(
+                new MainActivityPagerAdapter(getSupportFragmentManager(), this));
 
-    View.OnClickListener clickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            switch (view.getId()) {
-                case R.id.button1:
-                    optionOne();
-                    break;
+            tabLayout.getTabAt(0).setIcon(R.drawable.ic_public_white_24px);
+            tabLayout.getTabAt(2).setIcon(R.drawable.ic_person_add_white_24px);
+            tabLayout.getTabAt(3).setIcon(R.drawable.ic_chat_white_24px);
 
-                case R.id.button2:
-                    opitonTwo();
-                    break;
-            }
-            toast.show();
-        }
-    };
-
-
-    private void optionOne() {
-        toast.setText("option 1");
-
-        DatabaseReference ref = database.getReference("users");
-
-        ref.orderByChild("friends/Nick").equalTo(true).addValueEventListener(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            String key = snapshot.getKey();
-                            Log.d("MainActivity", "Key: " +key);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                }
-        );
-
-
-
-    }
-
-    private void opitonTwo() {
-        toast.setText("option 2");
     }
 
 
