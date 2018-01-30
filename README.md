@@ -10,7 +10,7 @@
 
 ###App signing:
 * Store the .jks file in the root directory of this project to sign a version of the app
-* Create a keystore.properties file which includes:
+* Create a keystore.properties file in the root directory which includes:
     * storePassword=yourPassword
     * keyPassword=yourOtherPassword
     * keyAlias=aliasName
