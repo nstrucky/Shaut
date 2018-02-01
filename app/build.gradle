@@ -10,7 +10,7 @@ android {
         config {
             keyAlias keystoreProperties['keyAlias']
             keyPassword keystoreProperties['keyPassword']
-            storeFile file("$rootDir\\"+keystoreProperties['storeFile'])
+            storeFile file("$rootDir\\" + keystoreProperties['storeFile'])
             storePassword keystoreProperties['storePassword']
         }
     }
@@ -26,7 +26,7 @@ android {
         //see tutorial:
         // https://medium.com/@cassioso/a-strategy-to-secure-your-api-keys-using-gradle-b9c107272860
         manifestPlaceholders = [
-                GOOGLE_PLACES_API_KEY:keystoreProperties['googlePlacesApiKey']]
+                GOOGLE_PLACES_API_KEY: keystoreProperties['googlePlacesApiKey']]
     }
 
     buildTypes {
@@ -34,13 +34,13 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
-            }
         }
+    }
     buildTypes.each {
         it.buildConfigField('String', 'GOOGLE_PLACES_API_KEY',
                 keystoreProperties['googlePlacesApiKey'])
     }
-    }
+}
 
 
 
