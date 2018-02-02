@@ -23,10 +23,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        //see tutorial:
-        // https://medium.com/@cassioso/a-strategy-to-secure-your-api-keys-using-gradle-b9c107272860
-        manifestPlaceholders = [
-                GOOGLE_PLACES_API_KEY: keystoreProperties['googlePlacesApiKey']]
+        def placesKey = keystoreProperties['googlePlacesApiKey']
+        manifestPlaceholders = [placesApiKey: placesKey]
     }
 
     buildTypes {
@@ -37,8 +35,8 @@ android {
         }
     }
     buildTypes.each {
-        it.buildConfigField('String', 'GOOGLE_PLACES_API_KEY',
-                keystoreProperties['googlePlacesApiKey'])
+//        it.buildConfigField('String', 'GOOGLE_PLACES_API_KEY',
+//                keystoreProperties['googlePlacesApiKey'])
     }
 }
 
@@ -61,7 +59,7 @@ dependencies {
     implementation 'com.android.support:design:27.0.2'
     implementation 'com.android.support:appcompat-v7:27.0.2'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    implementation 'com.android.support:cardview-v7:27.0.0'
+    implementation 'com.android.support:cardview-v7:27.0.2'
 
     //Picasso
     implementation 'com.squareup.picasso:picasso:2.5.2'
@@ -75,14 +73,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 }
-
-
-
-
-
-
-
-
-
 
 apply plugin: 'com.google.gms.google-services'
