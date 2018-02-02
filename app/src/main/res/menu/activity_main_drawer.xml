@@ -3,23 +3,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
-        <!--<item-->
-            <!--android:id="@+id/nav_camera"-->
-            <!--android:icon="@drawable/ic_menu_camera"-->
-            <!--android:title="Import" />-->
+    <group android:checkableBehavior="all">
+        <item
+            android:id="@+id/nav_edit_profile"
+            android:icon="@drawable/ic_create_white_24px"
+            android:title="@string/edit_profile" />
+
+        <item
+            android:id="@+id/nav_move"
+            android:icon="@drawable/ic_location_city_white_24px"
+            android:title="@string/move" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="@string/other">
         <menu>
-            <!--<item-->
-                <!--android:id="@+id/nav_share"-->
-                <!--android:icon="@drawable/ic_menu_share"-->
-                <!--android:title="Share" />-->
-            <!--<item-->
-                <!--android:id="@+id/nav_send"-->
-                <!--android:icon="@drawable/ic_menu_send"-->
-                <!--android:title="Send" />-->
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_exit_to_app_white_24px"
+                android:title="@string/logout" />
         </menu>
     </item>
 

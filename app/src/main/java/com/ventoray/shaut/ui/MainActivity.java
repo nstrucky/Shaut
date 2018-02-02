@@ -32,11 +32,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
-
         setUpNavDrawer();
-
-
         setUpViewPager();
     }
 
@@ -62,7 +58,8 @@ public class MainActivity extends AppCompatActivity
         viewPager.setAdapter(
                 new MainActivityPagerAdapter(getSupportFragmentManager(), this));
 
-            tabLayout.getTabAt(0).setIcon(R.drawable.ic_public_white_24px);
+            tabLayout.getTabAt(0).setIcon(R.drawable.ic_search_white_24px);
+            tabLayout.getTabAt(1).setIcon(R.drawable.ic_public_white_24px);
             tabLayout.getTabAt(2).setIcon(R.drawable.ic_person_add_white_24px);
             tabLayout.getTabAt(3).setIcon(R.drawable.ic_chat_white_24px);
 
@@ -108,20 +105,6 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
-//        if (id == R.id.nav_camera) {
-//            // Handle the camera action
-//        } else if (id == R.id.nav_gallery) {
-//
-//        } else if (id == R.id.nav_slideshow) {
-//
-//        } else if (id == R.id.nav_manage) {
-//
-//        } else if (id == R.id.nav_share) {
-//
-//        } else if (id == R.id.nav_send) {
-//
-//        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
