@@ -30,6 +30,7 @@ public class ProfileEditorActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
+        actionBar.setTitle(R.string.edit_profile);
     }
 
 }
