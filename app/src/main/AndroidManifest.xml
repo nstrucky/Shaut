@@ -21,7 +21,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.MainActivity" />
-        <activity android:name=".ui.ProfileEditorActivity" />
+        <activity android:name=".ui.ProfileEditorActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.MainActivity"/>
+        </activity>
 
 
         <meta-data
