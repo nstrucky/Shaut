@@ -4,6 +4,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.ventoray.shaut.R;
 
@@ -22,6 +24,27 @@ public class ProfileEditorActivity extends AppCompatActivity {
         setUpActionBar();
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.profile_editor, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.action_done:
+                //save changes
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     private void setUpActionBar() {
         setSupportActionBar(toolbar);
