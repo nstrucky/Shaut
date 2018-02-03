@@ -14,8 +14,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.ventoray.shaut.MainActivityPagerAdapter;
+import com.ventoray.shaut.ui.util.MainActivityPagerAdapter;
 import com.ventoray.shaut.R;
+import com.ventoray.shaut.ui.util.FragmentPageTransformer;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -63,6 +64,8 @@ public class MainActivity extends AppCompatActivity
             tabLayout.getTabAt(1).setIcon(R.drawable.ic_public_white_24px);
             tabLayout.getTabAt(2).setIcon(R.drawable.ic_person_add_white_24px);
             tabLayout.getTabAt(3).setIcon(R.drawable.ic_chat_white_24px);
+
+            viewPager.setPageTransformer(true, new FragmentPageTransformer());
 
     }
 

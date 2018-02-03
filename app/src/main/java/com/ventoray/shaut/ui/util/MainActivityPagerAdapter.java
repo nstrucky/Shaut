@@ -1,11 +1,11 @@
-package com.ventoray.shaut;
+package com.ventoray.shaut.ui.util;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.ventoray.shaut.ui.fragment.ShautsFragment;
+import com.ventoray.shaut.ui.fragment.PageFragment;
 
 /**
  * Created by Nick on 1/29/2018.
@@ -31,7 +31,7 @@ public class MainActivityPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return ShautsFragment.newInstance(position);
+        return PageFragment.newInstance(position);
     }
 
     @Override

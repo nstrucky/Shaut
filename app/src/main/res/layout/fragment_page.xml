@@ -1,0 +1,43 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.ventoray.shaut.ui.fragment.PageFragment">
+
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v4.widget.NestedScrollView
+            android:id="@+id/nestedScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <TextView
+                android:id="@+id/textView_test"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="a;sdlkfja;sldkfja;slkdfja;slkdfjasl;dkjfsldkfj;alsdkfjal;sdkfja;sldjkf;alskdjf;alsdkjf;lsdkjfal;sdkjf"
+                android:textSize="75sp" />
+
+
+        </android.support.v4.widget.NestedScrollView>
+
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_newShaut"
+            android:layout_width="@dimen/floatingActionButton_size"
+            android:layout_height="@dimen/floatingActionButton_size"
+            android:layout_gravity="bottom|right"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:src="@drawable/ic_create_white_18px"
+            android:visibility="invisible" />
+
+    </android.support.design.widget.CoordinatorLayout>
+
+
+</FrameLayout>
