@@ -14,4 +14,7 @@
     <string name="other">Other</string>
 
     <string name="action_settings">Settings</string>
+
+    <!--content descriptions-->
+    <string name="profile_picture">Profile picture</string>
 </resources>

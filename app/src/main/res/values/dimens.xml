@@ -34,4 +34,8 @@
     <dimen name="profile_picture_editor_margin_horizontal">8dp</dimen>
     <dimen name="edit_profile_card_height">450dp</dimen>
     <dimen name="scrollView_padding_top">72dp</dimen>
+
+    <!--ListItem-->
+    <dimen name="margin_children_horizontal">8dp</dimen>
+    <dimen name="margin_children_vertical">8dp</dimen>
 </resources>

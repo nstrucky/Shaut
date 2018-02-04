@@ -8,7 +8,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/imageView_profilePicture"
         android:layout_width="@dimen/profile_picture_dim"
         android:layout_height="@dimen/profile_picture_dim"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
