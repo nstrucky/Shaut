@@ -17,4 +17,5 @@
 
     <!--content descriptions-->
     <string name="profile_picture">Profile picture</string>
+    <string name="logo">Company Logo</string>
 </resources>

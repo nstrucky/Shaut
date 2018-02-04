@@ -10,28 +10,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v4.widget.NestedScrollView
-            android:id="@+id/nestedScrollView"
+        <android.support.v4.widget.SwipeRefreshLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/textView_test"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="a;sdlkfja;sldkfja;slkdfja;slkdfjasl;dkjfsldkfj;alsdkfjal;sdkfja;sldjkf;alskdjf;alsdkjf;lsdkjfal;sdkjf"
-                android:textSize="75sp" />
+                android:layout_height="match_parent"/>
 
+        </android.support.v4.widget.SwipeRefreshLayout>
 
-        </android.support.v4.widget.NestedScrollView>
 
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_newShaut"
             android:layout_width="@dimen/floatingActionButton_size"
             android:layout_height="@dimen/floatingActionButton_size"
-            android:layout_gravity="bottom|right"
+            android:layout_gravity="bottom|end"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:src="@drawable/ic_create_white_18px"
