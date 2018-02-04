@@ -32,6 +32,16 @@ public class Shaut {
 
     public Shaut() {}
 
+    public Shaut(String userName, String userKey, String profileImageUrl, String messageText, long messageTime, int upVote, int downVote) {
+        this.userName = userName;
+        this.userKey = userKey;
+        this.profileImageUrl = profileImageUrl;
+        this.messageText = messageText;
+        this.messageTime = messageTime;
+        this.upVote = upVote;
+        this.downVote = downVote;
+    }
+
     public String getProfileImageUrl() {
         return profileImageUrl;
     }

@@ -26,6 +26,13 @@ public class ChatMessage {
 
     public ChatMessage() {}
 
+    public ChatMessage(String userName, String userKey, String messageText, long messageTime) {
+        this.userName = userName;
+        this.userKey = userKey;
+        this.messageText = messageText;
+        this.messageTime = messageTime;
+    }
+
     public String getMessageText() {
         return messageText;
     }

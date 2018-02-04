@@ -31,6 +31,14 @@ public class User {
 
     public User() {}
 
+    public User(String userKey, String userName, String cityKey, String cityName, String profileSummary, String profileImageUrl) {
+        this.userKey = userKey;
+        this.userName = userName;
+        this.cityKey = cityKey;
+        this.cityName = cityName;
+        this.profileSummary = profileSummary;
+        this.profileImageUrl = profileImageUrl;
+    }
 
     public String getUserKey() {
         return userKey;
