@@ -52,6 +52,14 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+
+    }
+
     PlaceSelectionListener placeSelectionListener = new PlaceSelectionListener() {
         @Override
         public void onPlaceSelected(Place place) {
