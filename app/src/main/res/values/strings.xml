@@ -2,7 +2,7 @@
     <string name="app_name">Shaut</string>
     <string name="done">Done</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_world">Hello World!</string>
 
     <string name="city_name">City name</string>
 
@@ -21,4 +21,5 @@
 
     <!--Warning messages-->
     <string name="no_city_selected">No city selected!</string>
+    <string name="something_wrong">Something went wrong</string>
 </resources>

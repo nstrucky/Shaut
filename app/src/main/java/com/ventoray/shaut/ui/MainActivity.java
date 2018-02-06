@@ -42,7 +42,7 @@ import static com.ventoray.shaut.util.PreferenceHelper.savePreference;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1001;
+    public static final int RC_PLACE_AUTOCOMPLETE = 1001;
 
     public static final String LOG_TAG = "MainActivity";
 
@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity
         AutoCompleteHelper.initializePlaceAutoComplete(this, fragmentPlaceListener);
         setUserData();
 
-
     }
 
     @Override
@@ -71,7 +70,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+        if (requestCode == RC_PLACE_AUTOCOMPLETE) {
             if (resultCode == RESULT_OK) {
                 Place place = PlaceAutocomplete.getPlace(this, data);
                 saveAndDisplayCity(place);
@@ -105,12 +104,11 @@ public class MainActivity extends AppCompatActivity
                     public void onClick(View view) {
                         AutoCompleteHelper.startAutoCompleteActivity(
                                 MainActivity.this,
-                                PLACE_AUTOCOMPLETE_REQUEST_CODE
+                                RC_PLACE_AUTOCOMPLETE
                         );
                     }
                 }).show();
     }
-
 
 
     private void saveAndDisplayCity(Place place) {

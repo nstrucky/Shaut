@@ -16,6 +16,7 @@ public class User {
      */
     public static final String USER_KEY = "userKey";
     public static final String USER_NAME = "userName";
+    public static final String USER_EMAIL_ADDRESS = "userEmailAddress";
     public static final String CITY_KEY = "cityKey";
     public static final String CITY_NAME = "cityName";
     public static final String PROFILE_SUMMARY = "profileSummary";
@@ -24,6 +25,7 @@ public class User {
 
     private String userKey;
     private String userName;
+    private String userEmailAddress;
     private String cityKey;
     private String cityName;
     private String profileSummary;
@@ -38,6 +40,14 @@ public class User {
         this.cityName = cityName;
         this.profileSummary = profileSummary;
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public String getUserEmailAddress() {
+        return userEmailAddress;
+    }
+
+    public void setUserEmailAddress(String userEmailAddress) {
+        this.userEmailAddress = userEmailAddress;
     }
 
     public String getUserKey() {
@@ -98,6 +108,7 @@ public class User {
 
         result.put(USER_KEY, userKey);
         result.put(USER_NAME, userName);
+        result.put(USER_EMAIL_ADDRESS, userEmailAddress);
         result.put(CITY_KEY, cityKey);
         result.put(CITY_NAME, cityName);
         result.put(PROFILE_SUMMARY, profileSummary);
