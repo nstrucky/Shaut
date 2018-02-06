@@ -3,6 +3,7 @@ package com.ventoray.shaut.ui;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -33,8 +35,16 @@ import com.ventoray.shaut.util.AutoCompleteHelper;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.ventoray.shaut.util.PreferenceHelper.PREF_SELECTED_CITY_ID;
+import static com.ventoray.shaut.util.PreferenceHelper.getPreferenceValue;
+import static com.ventoray.shaut.util.PreferenceHelper.savePreference;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1001;
+
+    public static final String LOG_TAG = "MainActivity";
 
     @BindView(R.id.viewPager_main) ViewPager viewPager;
     @BindView(R.id.tablayout) TabLayout tabLayout;
@@ -47,26 +57,75 @@ public class MainActivity extends AppCompatActivity
         ButterKnife.bind(this);
         setUpNavDrawer();
         setUpViewPager();
-        AutoCompleteHelper.initializePlaceAutoComplete(this, placeSelectionListener);
+        AutoCompleteHelper.initializePlaceAutoComplete(this, fragmentPlaceListener);
         setUserData();
 
-    }
 
+    }
 
     @Override
     protected void onStart() {
         super.onStart();
-
-
+        checkCityPref();
     }
 
-    PlaceSelectionListener placeSelectionListener = new PlaceSelectionListener() {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlaceAutocomplete.getPlace(this, data);
+                saveAndDisplayCity(place);
+                Log.i(LOG_TAG, "Place: " + place.getName());
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(this, data);
+                makeMoveSnackbar();
+                Log.i(LOG_TAG, status.getStatusMessage());
+
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+        }
+    }
+
+    private void checkCityPref() {
+        String cityId = (String) getPreferenceValue(this, PREF_SELECTED_CITY_ID);
+        if (cityId == null) {
+            makeMoveSnackbar();
+            return;
+        }
+        AutoCompleteHelper.getPlacePhoto(this, cityId, cityImageView);
+    }
+
+
+    private void makeMoveSnackbar() {
+        Snackbar.make(findViewById(R.id.container_app_bar),
+                R.string.no_city_selected, Snackbar.LENGTH_INDEFINITE)
+                .setAction(getString(R.string.move), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        AutoCompleteHelper.startAutoCompleteActivity(
+                                MainActivity.this,
+                                PLACE_AUTOCOMPLETE_REQUEST_CODE
+                        );
+                    }
+                }).show();
+    }
+
+
+
+    private void saveAndDisplayCity(Place place) {
+        String cityId = place.getId();
+        AutoCompleteHelper.getPlacePhoto(MainActivity.this,
+                cityId, cityImageView);
+        savePreference(MainActivity.this, PREF_SELECTED_CITY_ID, cityId);
+    }
+
+    PlaceSelectionListener fragmentPlaceListener = new PlaceSelectionListener() {
         @Override
         public void onPlaceSelected(Place place) {
             if (place == null) return;
+            saveAndDisplayCity(place);
 
-            AutoCompleteHelper.getPlacePhoto(MainActivity.this,
-                    place.getId(), cityImageView);
         }
 
         @Override

@@ -16,6 +16,7 @@ public class Shaut {
      */
     public static final String USER_NAME = "userName";
     public static final String USER_KEY = "userKey";
+    public static final String CITY_KEY = "cityKey";
     public static final String PROFILE_IMAGE_URL = "profileImageUrl";
     public static final String MESSAGE_TEXT = "messageText";
     public static final String MESSAGE_TIME = "messageTime";
@@ -24,6 +25,7 @@ public class Shaut {
 
     private String userName;
     private String userKey;
+    private String cityKey; //placeId (places api)
     private String profileImageUrl;
     private String messageText;
     private long messageTime;
@@ -48,6 +50,14 @@ public class Shaut {
 
     public void setProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public String getCityKey() {
+        return cityKey;
+    }
+
+    public void setCityKey(String cityKey) {
+        this.cityKey = cityKey;
     }
 
     public String getMessageText() {
@@ -107,6 +117,7 @@ public class Shaut {
         HashMap<String, Object> result = new HashMap<>();
         result.put(USER_NAME, userName);
         result.put(USER_KEY, userKey);
+        result.put(CITY_KEY, cityKey);
         result.put(PROFILE_IMAGE_URL, profileImageUrl);
         result.put(MESSAGE_TEXT, messageText);
         result.put(MESSAGE_TIME, messageTime);

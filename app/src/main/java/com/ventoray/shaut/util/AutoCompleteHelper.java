@@ -1,17 +1,20 @@
 package com.ventoray.shaut.util;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.PlaceDetectionClient;
@@ -22,6 +25,7 @@ import com.google.android.gms.location.places.PlacePhotoMetadataBuffer;
 import com.google.android.gms.location.places.PlacePhotoMetadataResponse;
 import com.google.android.gms.location.places.PlacePhotoResponse;
 import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -43,6 +47,39 @@ public class AutoCompleteHelper {
         void onPlaceDetected(String likelyCity);
     }
 
+
+    /**
+     * Builds a consistent autoCompleteFilter
+     * @return
+     */
+    private static AutocompleteFilter buildAutoCompleteFilter() {
+        return new AutocompleteFilter.Builder()
+                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_CITIES)
+                .setCountry(AVAILABLE_COUNTRY_US)
+                .build();
+
+    }
+
+    /**
+     * This method starts the AutoComplete activity and returns result to calling activity.
+     * @param activity
+     * @param requestCode
+     */
+    public static void startAutoCompleteActivity(AppCompatActivity activity,
+                                                 int requestCode) {
+        try {
+            Intent intent =
+                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                            .setFilter(buildAutoCompleteFilter())
+                            .build(activity);
+            activity.startActivityForResult(intent, requestCode);
+        } catch (GooglePlayServicesRepairableException e) {
+            Toast.makeText(activity, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+        } catch (GooglePlayServicesNotAvailableException e) {
+            Toast.makeText(activity, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
     /**
      * This method prepares the AutoCompleteFragment, limiting search results to cities in the
      * US and sets the placeSelectionListener which will relay the result.
@@ -54,15 +91,9 @@ public class AutoCompleteHelper {
         PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                 appCompatActivity
                         .getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-
-        AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
-                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_CITIES)
-                .setCountry(AVAILABLE_COUNTRY_US)
-                .build();
-        autocompleteFragment.setFilter(autocompleteFilter);
+        autocompleteFragment.setFilter(buildAutoCompleteFilter());
         autocompleteFragment.setOnPlaceSelectedListener(placeSelectionListener);
     }
-
 
     public static void getPlacePhoto(final Context context,
                                      String placeId, final ImageView imageView) {
@@ -130,10 +161,6 @@ public class AutoCompleteHelper {
             }
         });
     }
-
-
-
-
 
     /**
      * Requests permission for location detection explicitly

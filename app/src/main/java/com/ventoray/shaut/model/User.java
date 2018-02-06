@@ -34,7 +34,7 @@ public class User {
     public User(String userKey, String userName, String cityKey, String cityName, String profileSummary, String profileImageUrl) {
         this.userKey = userKey;
         this.userName = userName;
-        this.cityKey = cityKey;
+        this.cityKey = cityKey; //placeId (places api)
         this.cityName = cityName;
         this.profileSummary = profileSummary;
         this.profileImageUrl = profileImageUrl;
