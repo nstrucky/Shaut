@@ -18,23 +18,31 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.ventoray.shaut.firebase.AuthHelper;
+import com.ventoray.shaut.firebase.FirebaseContract;
+import com.ventoray.shaut.firebase.Write;
+import com.ventoray.shaut.model.User;
 import com.ventoray.shaut.ui.util.MainActivityPagerAdapter;
 import com.ventoray.shaut.R;
 import com.ventoray.shaut.ui.util.FragmentPageTransformer;
 import com.ventoray.shaut.util.AutoCompleteHelper;
+import com.ventoray.shaut.util.FileHelper;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.ventoray.shaut.util.FileHelper.USER_OBJECT_FILE;
 import static com.ventoray.shaut.util.PreferenceHelper.PREF_SELECTED_CITY_ID;
 import static com.ventoray.shaut.util.PreferenceHelper.getPreferenceValue;
 import static com.ventoray.shaut.util.PreferenceHelper.savePreference;
@@ -46,6 +54,9 @@ public class MainActivity extends AppCompatActivity
 
     public static final String LOG_TAG = "MainActivity";
 
+    private User userObject;
+    private DatabaseReference userObjectReference;
+
     @BindView(R.id.viewPager_main) ViewPager viewPager;
     @BindView(R.id.tablayout) TabLayout tabLayout;
     @BindView(R.id.imageView_city) ImageView cityImageView;
@@ -55,17 +66,29 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        createDatabaseRefs();
+        getUserObject();
         setUpNavDrawer();
         setUpViewPager();
         AutoCompleteHelper.initializePlaceAutoComplete(this, fragmentPlaceListener);
-        setUserData();
 
     }
+
+
+    private void createDatabaseRefs() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        userObjectReference = FirebaseDatabase.getInstance().getReference()
+                .child(FirebaseContract.UsersNode.NAME)
+                .child(userId)
+                .child(FirebaseContract.UsersNode.User.USER_OBJECT);
+
+    }
+
 
     @Override
     protected void onStart() {
         super.onStart();
-        checkCityPref();
+
     }
 
     @Override
@@ -87,7 +110,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void checkCityPref() {
-        String cityId = (String) getPreferenceValue(this, PREF_SELECTED_CITY_ID);
+//        String cityId = (String) getPreferenceValue(this, PREF_SELECTED_CITY_ID);
+        if (userObject == null) return;
+        String cityId = userObject.getCityKey();
         if (cityId == null) {
             makeMoveSnackbar();
             return;
@@ -111,13 +136,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void saveAndDisplayCity(Place place) {
-        String cityId = place.getId();
-        AutoCompleteHelper.getPlacePhoto(MainActivity.this,
-                cityId, cityImageView);
-        savePreference(MainActivity.this, PREF_SELECTED_CITY_ID, cityId);
-    }
-
     PlaceSelectionListener fragmentPlaceListener = new PlaceSelectionListener() {
         @Override
         public void onPlaceSelected(Place place) {
@@ -128,21 +146,50 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onError(Status status) {
-            Log.e("MainActivity", status.getStatusMessage());
+            Log.e(LOG_TAG, status.getStatusMessage());
         }
     };
 
-    private void setUserData() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private void saveAndDisplayCity(Place place) {
+        String cityId = place.getId();
+        String cityName = place.getName().toString();
+        AutoCompleteHelper.getPlacePhoto(MainActivity.this,
+                cityId, cityImageView);
+        savePreference(MainActivity.this, PREF_SELECTED_CITY_ID, cityId);
+        userObject.setCityKey(cityId);
+        userObject.setCityName(cityName);
 
+        FileHelper.writeObjectToFile(this, userObject, USER_OBJECT_FILE);
+
+        Write.updateUserCity(userObject, null);
+
+        Write.writeObject(userObject, null,
+                FirebaseContract.UsersNode.NAME,
+                userObject.getUserKey(),
+                FirebaseContract.UsersNode.User.USER_OBJECT);
+    }
+
+
+    private void getUserObject() {
+        Object object = FileHelper.readObjectFromFile(this, USER_OBJECT_FILE);
+        if (object == null) {
+            userObjectReference.addValueEventListener(userObjectValueEventListener);
+
+        } else {
+            userObject = (User) object;
+            setUserData();
+        }
+    }
+
+
+    private void setUserData() {
+        checkCityPref();
         NavigationView navigationView = findViewById(R.id.nav_view);
         View headerLayout = navigationView.getHeaderView(0);
-
         TextView userNameTextView = headerLayout.findViewById(R.id.textView_userName);
-
         TextView userEmailAddressTextView = headerLayout.findViewById(R.id.textView_emailAddress);
-        userNameTextView.setText(user.getDisplayName());
-        userEmailAddressTextView.setText(user.getEmail());
+        userNameTextView.setText(userObject.getUserName());
+        userEmailAddressTextView.setText(userObject.getUserEmailAddress());
     }
 
     private void setUpNavDrawer() {
@@ -199,7 +246,7 @@ public class MainActivity extends AppCompatActivity
                 break;
 
             case R.id.nav_logout:
-                signOut();
+                AuthHelper.signOut(this);
                 break;
         }
 
@@ -208,24 +255,29 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    /**
-     * Signs the firebase authenticated user out of the application and TODO removes cached
-     * data on phone.
-     */
-    private void signOut() {
-        AuthUI.getInstance()
-                .signOut(this)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Intent intent = new Intent(MainActivity.this, PreSignInActivity.class);
-                        intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
-                        startActivity(intent);
-                        finish();
-                    }
-                });
+    ValueEventListener userObjectValueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            userObject = dataSnapshot.getValue(User.class);
+            if (userObject != null){
+                FileHelper.writeObjectToFile(MainActivity.this,
+                        userObject, FileHelper.USER_OBJECT_FILE);
+                setUserData();
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };//End listener for User Object
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (userObjectReference != null) {
+            userObjectReference.removeEventListener(userObjectValueEventListener);
+        }
     }
-
-
-
 }

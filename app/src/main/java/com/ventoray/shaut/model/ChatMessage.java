@@ -1,6 +1,7 @@
 package com.ventoray.shaut.model;
 
 import com.google.firebase.database.Exclude;
+import com.ventoray.shaut.firebase.FirebaseContract;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +10,7 @@ import java.util.Map;
  * Created by Nick on 2/4/2018.
  */
 
-public class ChatMessage {
+public class ChatMessage implements FirebaseContract.FirebaseMapObject {
 
     /**
      *  These are the key names for the variables to be stored in Firebase
@@ -69,6 +70,7 @@ public class ChatMessage {
      * Method used for updating children in firebase using mDatabase.updateChildren(childUpdates)
      * @return
      */
+    @Override
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
