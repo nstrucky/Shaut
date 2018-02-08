@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.ventoray.shaut.R;
 import com.ventoray.shaut.ui.PreSignInActivity;
 
@@ -49,13 +50,16 @@ public class AuthHelper {
      * data on phone.
      */
     public static void signOut(final AppCompatActivity appCompatActivity) {
+        FirebaseAuth.getInstance().signOut();
+
         AuthUI.getInstance()
                 .signOut(appCompatActivity)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
+//                        FirebaseAuth.getInstance().signOut();
                         Intent intent = new Intent(appCompatActivity, PreSignInActivity.class);
-                        intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
+//                        intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
                         appCompatActivity.startActivity(intent);
                         appCompatActivity.finish();
                     }

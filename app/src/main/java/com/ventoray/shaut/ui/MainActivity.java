@@ -84,13 +84,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == RC_PLACE_AUTOCOMPLETE) {
@@ -110,7 +103,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void checkCityPref() {
-//        String cityId = (String) getPreferenceValue(this, PREF_SELECTED_CITY_ID);
         if (userObject == null) return;
         String cityId = userObject.getCityKey();
         if (cityId == null) {
@@ -151,6 +143,7 @@ public class MainActivity extends AppCompatActivity
     };
 
     private void saveAndDisplayCity(Place place) {
+        String oldCityId = userObject.getCityKey();
         String cityId = place.getId();
         String cityName = place.getName().toString();
         AutoCompleteHelper.getPlacePhoto(MainActivity.this,
@@ -161,12 +154,8 @@ public class MainActivity extends AppCompatActivity
 
         FileHelper.writeObjectToFile(this, userObject, USER_OBJECT_FILE);
 
-        Write.updateUserCity(userObject, null);
+        Write.updateUserCity(userObject, oldCityId, null);
 
-        Write.writeObject(userObject, null,
-                FirebaseContract.UsersNode.NAME,
-                userObject.getUserKey(),
-                FirebaseContract.UsersNode.User.USER_OBJECT);
     }
 
 

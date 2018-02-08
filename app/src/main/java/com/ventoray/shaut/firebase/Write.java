@@ -44,6 +44,7 @@ public class Write {
      * @param listener
      */
     public static void updateUserCity(User userObject,
+                                      String oldCityId,
                                       OnCompleteListener listener) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         Map<String, Object> childUpdates = new HashMap<>();
@@ -62,7 +63,13 @@ public class Write {
 
         databaseReference.updateChildren(childUpdates).addOnCompleteListener(listener);
 
+        if (oldCityId != null && !oldCityId.isEmpty()) {
+            databaseReference.child(FirebaseContract.CitiesNode.NAME)
+                    .child(oldCityId)
+                    .child(FirebaseContract.CitiesNode.City.USERS_NODE)
+                    .child(userId)
+                    .removeValue();
+        }
     }
-
 
 }
