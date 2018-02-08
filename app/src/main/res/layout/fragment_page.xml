@@ -21,8 +21,6 @@
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
-
-
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_newShaut"
             android:layout_width="@dimen/floatingActionButton_size"

@@ -44,7 +44,6 @@ import butterknife.ButterKnife;
 
 import static com.ventoray.shaut.util.FileHelper.USER_OBJECT_FILE;
 import static com.ventoray.shaut.util.PreferenceHelper.PREF_SELECTED_CITY_ID;
-import static com.ventoray.shaut.util.PreferenceHelper.getPreferenceValue;
 import static com.ventoray.shaut.util.PreferenceHelper.savePreference;
 
 public class MainActivity extends AppCompatActivity
@@ -220,7 +219,6 @@ public class MainActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
-
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override

@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <include
         android:id="@+id/include_profilePicture"
@@ -20,13 +20,10 @@
         android:id="@+id/textView_userName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/margin_children_horizontal"
-        android:layout_marginStart="@dimen/margin_children_horizontal"
         android:layout_marginTop="@dimen/margin_children_vertical"
-        tools:text="TextView"
-        app:layout_constraintEnd_toEndOf="@+id/include_profilePicture"
         app:layout_constraintStart_toStartOf="@+id/include_profilePicture"
-        app:layout_constraintTop_toBottomOf="@+id/include_profilePicture" />
+        app:layout_constraintTop_toBottomOf="@+id/include_profilePicture"
+        tools:text="TextView" />
 
     <TextView
         android:id="@+id/textView_profileText"

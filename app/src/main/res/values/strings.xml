@@ -22,4 +22,5 @@
     <!--Warning messages-->
     <string name="no_city_selected">No city selected!</string>
     <string name="something_wrong">Something went wrong</string>
+    <string name="no_name">No name!</string>
 </resources>
