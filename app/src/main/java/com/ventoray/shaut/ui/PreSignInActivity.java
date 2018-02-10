@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -17,6 +18,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.ventoray.shaut.R;
 import com.ventoray.shaut.firebase.AuthHelper;
 import com.ventoray.shaut.firebase.FirebaseContract;
@@ -33,12 +36,13 @@ public class PreSignInActivity extends AppCompatActivity {
             "com.ventoray.shaut.ui.USER_SIGNED_IN_ALREADY_KEY";
 
     private boolean onActivityResultCalled;
-    private DatabaseReference userObjectReference;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pre_sign_in);
+        db = FirebaseFirestore.getInstance();
 
     }
 
@@ -81,68 +85,32 @@ public class PreSignInActivity extends AppCompatActivity {
                 // Successfully signed in
                 String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
                 Log.d(LOG_TAG, "User Id: " + uid);
-                Util.checkNodeExists(nodeExistsCheckCallback,
-                        FirebaseContract.UsersNode.NAME,
-                        uid,
-                        FirebaseContract.UsersNode.User.USER_OBJECT
-                        );
+                db.collection(FirebaseContract.UsersNode.NAME)
+                        .document(uid)
+                        .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot documentSnapshot = task.getResult();
+                            if (documentSnapshot != null && documentSnapshot.exists()) {
+                                User user = documentSnapshot.toObject(User.class);
+                                FileHelper.writeObjectToFile(PreSignInActivity.this,
+                                        user, FileHelper.USER_OBJECT_FILE);
+                                goToMainActivity();
+                            } else {//document does not exist
+                                createNewUserNode();
+                            }
+                        } else {
+                            Log.e(LOG_TAG, task.getException().getMessage().toString());
+                        }
+                    }
+                });
+
             } else {
-                Toast.makeText(this, "No dice", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.something_wrong, Toast.LENGTH_SHORT).show();
             }
         }
     }
-
-    /**
-     * Checks if the specified user node (key) exists in the database.  If it does, then retrieve
-     * a user object from db and write to file for use by mainactivity. Note that this is only
-     * called from the onActivityResult method.
-     *
-     * If node doesn't exist, then create a new user!
-     */
-    Util.NodeExistsCheckCallback nodeExistsCheckCallback = new Util.NodeExistsCheckCallback() {
-        @Override
-        public void onUserNodeChecked(boolean exists) {
-            Log.d(LOG_TAG, "User Node " + (exists ? "exists" : "does not exist"));
-            if (exists) {
-                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                userObjectReference = FirebaseDatabase.getInstance().getReference()
-                        .child(FirebaseContract.UsersNode.NAME)
-                        .child(uid)
-                        .child(FirebaseContract.UsersNode.User.USER_OBJECT);
-
-                        userObjectReference
-                                .addListenerForSingleValueEvent(userObjectValueEventListener);
-
-
-            } else {
-                createNewUserNode();
-            }
-        }
-    };
-
-
-    /**
-     * Once the user object is retrieved, then the app proceeds to the mainactivity
-     */
-    ValueEventListener userObjectValueEventListener = new ValueEventListener() {
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            Log.d(LOG_TAG, "userObjectValueEventListener");
-            User userObject = dataSnapshot.getValue(User.class);
-            if (userObject != null){
-                FileHelper.writeObjectToFile(PreSignInActivity.this,
-                        userObject, FileHelper.USER_OBJECT_FILE);
-                goToMainActivity();
-            }
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-
-        }
-    };//End listener for User Object
-
-
 
     /**
      * This method creates a new user profile by get the display name, email address, and user ID
@@ -165,25 +133,23 @@ public class PreSignInActivity extends AppCompatActivity {
 
         FileHelper.writeObjectToFile(this, newUser, FileHelper.USER_OBJECT_FILE);
 
-        Write.writeObject(newUser, onCompleteWriteUserObject,
-                FirebaseContract.UsersNode.NAME,
-                firebaseUser.getUid(),
-                FirebaseContract.UsersNode.User.USER_OBJECT);
-    }
+        db.collection(FirebaseContract.UsersNode.NAME)
+                .document(newUser.getUserKey())
+                .set(newUser.toMap()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    goToMainActivity();
+                } else { //did not write new user to firestore
+                    Toast.makeText(PreSignInActivity.this,
+                            R.string.something_wrong,
+                            Toast.LENGTH_SHORT).show();
 
-
-    OnCompleteListener onCompleteWriteUserObject = new OnCompleteListener() {
-        @Override
-        public void onComplete(@NonNull Task task) {
-            if (task.isSuccessful()) {
-                goToMainActivity();
-            } else {
-                Toast.makeText(PreSignInActivity.this,
-                        R.string.something_wrong, Toast.LENGTH_SHORT).show();
+                    Log.e(LOG_TAG, task.getException().getStackTrace().toString());
+                }
             }
-
-        }
-    };
+        });
+    }
 
     private void goToMainActivity() {
         Intent intent = new Intent(PreSignInActivity.this, MainActivity.class);
@@ -193,16 +159,6 @@ public class PreSignInActivity extends AppCompatActivity {
 
 
 
-    /**
-     * Remove valueEventListeners from any database objects here
-     */
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (userObjectReference != null) {
-            userObjectReference.removeEventListener(userObjectValueEventListener);
-        }
-    }
 
 
 }

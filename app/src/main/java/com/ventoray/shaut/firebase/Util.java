@@ -24,6 +24,13 @@ public class Util {
     }
 
 
+    public static void checkFireStoreDocumentExists() {
+
+
+
+    }
+
+
     /**
      * Checks if path in firebase database exists and returns boolean to callback
      * @param callback - callback which returns boolean result

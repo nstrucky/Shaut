@@ -12,11 +12,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.ventoray.shaut.R;
 import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.model.User;
@@ -27,9 +30,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -55,11 +55,10 @@ public class PageFragment extends Fragment {
     private static final String LOG_TAG = "PageFragment";
 
     private int pageType;
-    private Query usersInCityQuery;
     private List<User> potentialFriends;
+    private FirebaseFirestore db;
     TestRecyclerAdapter testAdapter;
 
-//    @BindView(R.id.recyclerView) RecyclerView recyclerView;
     private RecyclerView recyclerView;
 
     public PageFragment() {
@@ -79,7 +78,7 @@ public class PageFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setPageType();
 
-
+        db = FirebaseFirestore.getInstance();
         potentialFriends = new ArrayList<>();
         testAdapter = new TestRecyclerAdapter(this.getContext(), potentialFriends);
 
@@ -91,7 +90,6 @@ public class PageFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_page, container, false);
 
-//        ButterKnife.bind(view);
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -117,7 +115,7 @@ public class PageFragment extends Fragment {
     private void initializePage(@PageType int pageType, View view) {
         switch (pageType) {
             case PAGE_TYPE_FRIENDFINDER:
-                doFriendFinderPageStuff();
+                initializeFriendFinderPage();
                 break;
 
             case PAGE_TYPE_SHAUTS:
@@ -146,46 +144,33 @@ public class PageFragment extends Fragment {
     }
 
 
-    private void doFriendFinderPageStuff() {
+
+    /***********************************************************************************************
+     * Friend finder page methods
+     **********************************************************************************************/
+
+    private void initializeFriendFinderPage() {
         //users/$userId/user_object/cityKey = true
         User user = (User) FileHelper.readObjectFromFile(getContext(), FileHelper.USER_OBJECT_FILE);
-        usersInCityQuery = FirebaseDatabase.getInstance().getReference("users")
-                .orderByChild(FirebaseContract.UsersNode.User.USER_OBJECT + "/" +
-                        User.CITY_KEY)
-                .equalTo(user.getCityKey());
+        String cityKey = user.getCityKey();
+        if (cityKey == null) return;
 
-        usersInCityQuery.addListenerForSingleValueEvent(friendFinderChildEventListener);
+        db.collection(FirebaseContract.UsersNode.NAME)
+                .whereEqualTo(User.CITY_KEY, cityKey)
+                .limit(2)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot documentSnapshots) {
+                        List<User> users = documentSnapshots.toObjects(User.class);
+                        for (User user : users) {
+                            potentialFriends.add(user);
+                            Log.d(LOG_TAG, user.getUserEmailAddress());
+                        }
+                        testAdapter.notifyDataSetChanged();
+                    }
+                });
+
     }
 
-
-    ValueEventListener friendFinderChildEventListener = new ValueEventListener() {
-
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            potentialFriends.clear();
-
-            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                for (DataSnapshot snapshot1 : snapshot.getChildren()) {
-                    User user = snapshot1.getValue(User.class);
-                    potentialFriends.add(user);
-                }
-            }
-
-            testAdapter.notifyDataSetChanged();
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-
-        }
-    };
-
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (usersInCityQuery != null) {
-            usersInCityQuery.removeEventListener(friendFinderChildEventListener);
-        }
-    }
 }

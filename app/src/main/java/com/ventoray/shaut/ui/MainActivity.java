@@ -22,12 +22,16 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.ventoray.shaut.firebase.AuthHelper;
 import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.firebase.Write;
@@ -54,7 +58,7 @@ public class MainActivity extends AppCompatActivity
     public static final String LOG_TAG = "MainActivity";
 
     private User userObject;
-    private DatabaseReference userObjectReference;
+    private FirebaseFirestore db;
 
     @BindView(R.id.viewPager_main) ViewPager viewPager;
     @BindView(R.id.tablayout) TabLayout tabLayout;
@@ -65,7 +69,6 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        createDatabaseRefs();
         getUserObject();
         setUpNavDrawer();
         setUpViewPager();
@@ -73,13 +76,42 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    private void getUserObject() {
+        db = FirebaseFirestore.getInstance();
+        Object object = FileHelper.readObjectFromFile(this, USER_OBJECT_FILE);
+        if (object == null) {
+            getUserObjectFromFirestore();
 
-    private void createDatabaseRefs() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        userObjectReference = FirebaseDatabase.getInstance().getReference()
-                .child(FirebaseContract.UsersNode.NAME)
-                .child(userId)
-                .child(FirebaseContract.UsersNode.User.USER_OBJECT);
+        } else {
+            userObject = (User) object;
+            setUserData();
+        }
+    }
+
+    private void getUserObjectFromFirestore() {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        db.collection(FirebaseContract.UsersNode.NAME)
+                .document(uid)
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot != null && documentSnapshot.exists()) {
+                        userObject = documentSnapshot.toObject(User.class);
+                        if (userObject != null){
+                            FileHelper.writeObjectToFile(MainActivity.this,
+                                    userObject, FileHelper.USER_OBJECT_FILE);
+                            setUserData();
+                        }
+                    } else {//document does not exist
+
+                    }
+                } else {
+                    Log.e(LOG_TAG, task.getException().getMessage().toString());
+                }
+            }
+        });
 
     }
 
@@ -153,22 +185,12 @@ public class MainActivity extends AppCompatActivity
 
         FileHelper.writeObjectToFile(this, userObject, USER_OBJECT_FILE);
 
-        Write.updateUserCity(userObject, oldCityId, null);
+//        Write.updateUserCity(userObject, oldCityId, null);
+        db.collection(FirebaseContract.UsersNode.NAME)
+                .document(userObject.getUserKey())
+                .set(userObject.toMap());
 
     }
-
-
-    private void getUserObject() {
-        Object object = FileHelper.readObjectFromFile(this, USER_OBJECT_FILE);
-        if (object == null) {
-            userObjectReference.addValueEventListener(userObjectValueEventListener);
-
-        } else {
-            userObject = (User) object;
-            setUserData();
-        }
-    }
-
 
     private void setUserData() {
         checkCityPref();
@@ -240,31 +262,5 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    ValueEventListener userObjectValueEventListener = new ValueEventListener() {
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            userObject = dataSnapshot.getValue(User.class);
-            if (userObject != null){
-                FileHelper.writeObjectToFile(MainActivity.this,
-                        userObject, FileHelper.USER_OBJECT_FILE);
-                setUserData();
-            }
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-
-        }
-    };//End listener for User Object
-
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (userObjectReference != null) {
-            userObjectReference.removeEventListener(userObjectValueEventListener);
-        }
     }
 }
