@@ -13,12 +13,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.ventoray.shaut.R;
@@ -65,11 +69,13 @@ public class PageFragment extends Fragment {
 
     //friend request page
     private List<FriendRequest> friendRequests;
+    private ListenerRegistration friendRequestReg;
 
     //friend finder page
     private List<User> potentialFriends;
 
     //all pages
+    private TextView emptyTextView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView.Adapter adapter;
     private FirebaseFirestore db;
@@ -104,6 +110,7 @@ public class PageFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_page, container, false);
 
+        emptyTextView = (TextView) view.findViewById(R.id.textView_empty);
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -145,14 +152,15 @@ public class PageFragment extends Fragment {
                         break;
 
                     case PAGE_TYPE_SHAUTS:
+                        swipeRefreshLayout.setRefreshing(false);
                         break;
 
                     case PAGE_TYPE_FRIEND_REQUESTS:
-
+                        swipeRefreshLayout.setRefreshing(false);
                         break;
 
                     case PAGE_TYPE_MESSAGES:
-
+                        swipeRefreshLayout.setRefreshing(false);
                         break;
 
                     default:
@@ -187,8 +195,32 @@ public class PageFragment extends Fragment {
     }
 
 
+    private void emptyTextVisiblity() {
+        if (pageType == PAGE_TYPE_FRIEND_REQUESTS) {
+            emptyTextView.setText(R.string.no_requests);
+        }
+        if (adapter.getItemCount() == 0) {
+            emptyTextView.setVisibility(View.VISIBLE);
+        } else {
+            emptyTextView.setVisibility(View.GONE);
+        }
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (friendRequestReg != null) {
+            friendRequestReg.remove();
+        }
+    }
+
+
+    /***********************************************************************************************
+     * Friend request page methods
+     **********************************************************************************************/
     private void initializeFriendRequestsPage() {
-        Query query = db.collection(FirebaseContract.UsersCollection.NAME)
+         Query friendRequestQuery = db.collection(FirebaseContract.UsersCollection.NAME)
                 .document(userObject.getUserKey())
                 .collection(FirebaseContract.UsersCollection.User.StrangersRequestCollection.NAME);
         friendRequests = new ArrayList<>();
@@ -196,6 +228,7 @@ public class PageFragment extends Fragment {
                 new FriendReqeustAdapter.OnFriendRequestResponseListener() {
                     @Override
                     public void onResponse(FriendRequest friendRequest, boolean accepted) {
+                        respondToRequest(friendRequest, accepted);
                         String message = accepted ? getString(R.string.accepted) :
                                 getString(R.string.declined);
 
@@ -203,57 +236,47 @@ public class PageFragment extends Fragment {
                     }
                 });
         recyclerView.setAdapter(adapter);
-        getFriendRequests(query);
+        friendRequestReg =
+                friendRequestQuery.addSnapshotListener(friendRequestListener);
     }
 
-    private void getFriendRequests(Query query) {
-        query
-                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot documentSnapshots) {
-                friendRequests.clear();
-                if (documentSnapshots != null && documentSnapshots.size() > 0) {
-                    for (DocumentSnapshot documentSnapshot : documentSnapshots) {
-                        FriendRequest request = documentSnapshot.toObject(FriendRequest.class);
 
-                        friendRequests.add(request);
-                    }
-                    adapter.notifyDataSetChanged();
+    EventListener<QuerySnapshot> friendRequestListener = new EventListener<QuerySnapshot>() {
+        @Override
+        public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
+            friendRequests.clear();
+            if (documentSnapshots != null && documentSnapshots.size() > 0) {
+                for (DocumentSnapshot documentSnapshot : documentSnapshots) {
+                    FriendRequest request = documentSnapshot.toObject(FriendRequest.class);
+
+                    friendRequests.add(request);
                 }
+                adapter.notifyDataSetChanged();
+                emptyTextVisiblity();
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e(LOG_TAG, e.getMessage());
-            }
-        });
+        }
+    };
 
+
+    /**
+     * Handles the logic for responding to a stranger's friend request.
+     * Deletes the request if declining and starts the chat room if accepting (also deletes request)
+     * @param friendRequest
+     * @param accepted
+     */
+    private void respondToRequest(FriendRequest friendRequest, boolean accepted) {
+        if (accepted) {
+
+        } else { //declined friend request
+            db.collection(FirebaseContract.UsersCollection.NAME)
+                    .document(userObject.getUserKey())
+                    .collection(FirebaseContract.UsersCollection.User.StrangersRequestCollection.NAME)
+                    .document(friendRequest.getRequesterUserKey())
+                    .delete();
+
+
+        }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -275,7 +298,7 @@ public class PageFragment extends Fragment {
                     }
                 });
         recyclerView.setAdapter(adapter);
-        //users/$userId/user_object/cityKey = true
+
 
         String cityKey = userObject.getCityKey();
         if (cityKey == null) {
@@ -285,10 +308,16 @@ public class PageFragment extends Fragment {
         getPotentialFriends(query, cityKey, true);
     }
 
+    /**
+     * userObject is reinitialized here in order to captur the new city key saved to file in the
+     * main activity
+     */
     private void refreshFriendFinder() {
+        userObject = (User) FileHelper.readObjectFromFile(getContext(), FileHelper.USER_OBJECT_FILE);
         Query query = db.collection(FirebaseContract.UsersCollection.NAME);
         String cityKey = userObject.getCityKey();
         getPotentialFriends(query, cityKey, false);
+
     }
 
     private void getPotentialFriends(Query query, String cityKey, boolean startFromNewest) {
@@ -328,6 +357,7 @@ public class PageFragment extends Fragment {
 
                         adapter.notifyDataSetChanged();
                         swipeRefreshLayout.setRefreshing(false);
+                        emptyTextVisiblity();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -336,7 +366,6 @@ public class PageFragment extends Fragment {
             }
         });
     }
-
 
 
 

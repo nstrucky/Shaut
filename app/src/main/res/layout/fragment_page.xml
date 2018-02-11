@@ -22,6 +22,15 @@
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/textView_empty"
+            android:text="@string/start_over"
+            style="@style/EmptyView"
+            android:visibility="visible"
+            />
+
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_newShaut"
             android:layout_width="@dimen/floatingActionButton_size"

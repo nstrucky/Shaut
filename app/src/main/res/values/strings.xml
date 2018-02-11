@@ -29,4 +29,6 @@
     <string name="friend_request_sent">Friend request sent!</string>
     <string name="accepted">Accepted new friend!</string>
     <string name="declined">Declined friendship</string>
+    <string name="start_over">Start Over!</string>
+    <string name="no_requests">No friend requests.</string>
 </resources>
