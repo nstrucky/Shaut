@@ -6,6 +6,11 @@ import com.ventoray.shaut.firebase.FirebaseContract;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.ventoray.shaut.firebase.FirebaseContract.MessagesCollection.ChatMessagesCollection.ChatMessage.FIELD_MESSAGE_TEXT;
+import static com.ventoray.shaut.firebase.FirebaseContract.MessagesCollection.ChatMessagesCollection.ChatMessage.FIELD_MESSAGE_TIME;
+import static com.ventoray.shaut.firebase.FirebaseContract.MessagesCollection.ChatMessagesCollection.ChatMessage.FIELD_USER_KEY;
+import static com.ventoray.shaut.firebase.FirebaseContract.MessagesCollection.ChatMessagesCollection.ChatMessage.FIELD_USER_NAME;
+
 /**
  * Created by Nick on 2/4/2018.
  */
@@ -15,11 +20,6 @@ public class ChatMessage implements FirebaseContract.FirebaseMapObject {
     /**
      *  These are the key names for the variables to be stored in Firebase
      */
-    public static final String USER_NAME = "userName";
-    public static final String USER_KEY = "userKey";
-    public static final String MESSAGE_TEXT = "messageText";
-    public static final String MESSAGE_TIME = "messageTime";
-
     private String userName;
     private String userKey;
     private String messageText;
@@ -74,10 +74,10 @@ public class ChatMessage implements FirebaseContract.FirebaseMapObject {
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.put(USER_NAME, userName);
-        result.put(USER_KEY, userKey);
-        result.put(MESSAGE_TEXT, messageText);
-        result.put(MESSAGE_TIME, messageTime);
+        result.put(FIELD_USER_NAME, userName);
+        result.put(FIELD_USER_KEY, userKey);
+        result.put(FIELD_MESSAGE_TEXT, messageText);
+        result.put(FIELD_MESSAGE_TIME, messageTime);
 
         return result;
     }

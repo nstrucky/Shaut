@@ -7,6 +7,7 @@ import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.
 import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.StrangersRequestCollection.Request.FIELD_CITY_NAME;
 import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.StrangersRequestCollection.Request.FIELD_POTENTIAL_FRIEND_KEY;
 import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.StrangersRequestCollection.Request.FIELD_REQUESTER_IMAGE_URL;
+import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.StrangersRequestCollection.Request.FIELD_REQUESTER_PROFILE_CONTENT;
 import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.StrangersRequestCollection.Request.FIELD_REQUESTER_USER_KEY;
 import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.StrangersRequestCollection.Request.FIELD_REQUESTER_USER_NAME;
 
@@ -101,6 +102,7 @@ public class FriendRequest {
         result.put(FIELD_REQUESTER_USER_KEY, requesterUserKey);
         result.put(FIELD_REQUESTER_USER_NAME, requesterUserName);
         result.put(FIELD_REQUESTER_IMAGE_URL, requesterImageUrl);
+        result.put(FIELD_REQUESTER_PROFILE_CONTENT, requesterProfileContent);
         result.put(FIELD_POTENTIAL_FRIEND_KEY, potentialFriendKey);
         result.put(FIELD_CITY_KEY, cityKey);
         result.put(FIELD_CITY_NAME, cityName);

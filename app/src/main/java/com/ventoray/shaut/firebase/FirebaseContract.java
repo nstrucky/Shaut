@@ -18,6 +18,7 @@ public class FirebaseContract {
     private static final String SHAUTS_COLLECTION = "shauts";
     private static final String CITIES_COLLECTION = "cities";
     private static final String CHATROOMS_COLLECTION = "chatroom";
+    private static final String MESSAGES_COLLECTION = "messages";
     private static final String USERS_FRIEND_REQUESTS_COLLECTION = "users_friend_requests";
 
 
@@ -31,6 +32,22 @@ public class FirebaseContract {
         }
     }
 
+    public static class MessagesCollection {
+        public static final String NAME = MESSAGES_COLLECTION;
+        public static final String CHAT_MESSAGES_COLLECTION = "chatMessagesCollection";
+
+
+        public static class ChatMessagesCollection {
+            public static final String NAME = CHAT_MESSAGES_COLLECTION;
+            public static class ChatMessage {
+                public static final String FIELD_USER_NAME = "userName";
+                public static final String FIELD_USER_KEY = "userKey";
+                public static final String FIELD_MESSAGE_TEXT = "messageText";
+                public static final String FIELD_MESSAGE_TIME = "messageTime";
+            }
+        }
+
+    }
 
     public static class UsersCollection {
         public static final String NAME = USERS_COLLECTION;
@@ -38,6 +55,7 @@ public class FirebaseContract {
         public static class User {
             public static final String CITY_VARIABLE = "city";
             public static final String NAME = "user_object";
+            public static final String CHATROOMS_COLLECTION = "chatrooms";
             public static final String STRANGERS_FRIEND_REQUESTS_COLLECTION =
                     "strangers_friend_requests";
 
@@ -50,6 +68,23 @@ public class FirebaseContract {
             public static final String FIELD_PROFILE_SUMMARY = "profileSummary";
             public static final String FIELD_PROFILE_IMAGE_URL = "profileImageUrl";
             public static final String FIELD_MOVED_TO_CITY_DATE = "movedToCityDate";
+
+
+            public static class ChatroomsCollection {
+                public static final String NAME = CHATROOMS_COLLECTION;
+
+                public static class ChatMetaData {
+                    public static final String NAME = "chatmetadata_object";
+
+                    public static final String FIELD_TIMESTAMP = "timestamp";
+                    public static final String FIELD_USER_KEY = "userKey";
+                    public static final String FIELD_USER_NAME = "userName";
+                    public static final String FIELD_FRIEND_KEY = "friendKey";
+                    public static final String FIELD_FRIEND_NAME = "friendName";
+                    public static final String FIELD_LAST_MESSAGE = "lastMessage";
+                }
+            }
+
 
             public static class StrangersRequestCollection {
                 public static final String NAME = STRANGERS_FRIEND_REQUESTS_COLLECTION;
@@ -68,6 +103,7 @@ public class FirebaseContract {
                 }
             }
         }
+
 
 
 
