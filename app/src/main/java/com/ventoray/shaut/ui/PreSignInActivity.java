@@ -28,6 +28,8 @@ import com.ventoray.shaut.firebase.Write;
 import com.ventoray.shaut.model.User;
 import com.ventoray.shaut.util.FileHelper;
 
+import java.util.Date;
+
 public class PreSignInActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 1001;
@@ -130,6 +132,8 @@ public class PreSignInActivity extends AppCompatActivity {
         newUser.setProfileSummary(getString(R.string.hello_world));
         newUser.setUserName(userName);
         newUser.setUserEmailAddress(userEmail);
+
+
 
         FileHelper.writeObjectToFile(this, newUser, FileHelper.USER_OBJECT_FILE);
 

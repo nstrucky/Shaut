@@ -25,16 +25,10 @@ import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.ventoray.shaut.firebase.AuthHelper;
 import com.ventoray.shaut.firebase.FirebaseContract;
-import com.ventoray.shaut.firebase.Write;
 import com.ventoray.shaut.model.User;
 import com.ventoray.shaut.ui.util.MainActivityPagerAdapter;
 import com.ventoray.shaut.R;
@@ -42,6 +36,8 @@ import com.ventoray.shaut.ui.util.FragmentPageTransformer;
 import com.ventoray.shaut.util.AutoCompleteHelper;
 import com.ventoray.shaut.util.FileHelper;
 
+
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -177,11 +173,13 @@ public class MainActivity extends AppCompatActivity
         String oldCityId = userObject.getCityKey();
         String cityId = place.getId();
         String cityName = place.getName().toString();
+        long movedToCityDate = new Date().getTime();
         AutoCompleteHelper.getPlacePhoto(MainActivity.this,
                 cityId, cityImageView);
         savePreference(MainActivity.this, PREF_SELECTED_CITY_ID, cityId);
         userObject.setCityKey(cityId);
         userObject.setCityName(cityName);
+        userObject.setMovedToCityDate(movedToCityDate);
 
         FileHelper.writeObjectToFile(this, userObject, USER_OBJECT_FILE);
 

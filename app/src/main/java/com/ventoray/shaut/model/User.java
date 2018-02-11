@@ -23,6 +23,7 @@ public class User implements FirebaseContract.FirebaseMapObject, Serializable {
     public static final String CITY_NAME = "cityName";
     public static final String PROFILE_SUMMARY = "profileSummary";
     public static final String PROFILE_IMAGE_URL = "profileImageUrl";
+    public static final String MOVED_TO_CITY_DATE = "movedToCityDate";
 
 
     private String userKey;
@@ -32,16 +33,26 @@ public class User implements FirebaseContract.FirebaseMapObject, Serializable {
     private String cityName;
     private String profileSummary;
     private String profileImageUrl;
+    private long movedToCityDate;
 
     public User() {}
 
-    public User(String userKey, String userName, String cityKey, String cityName, String profileSummary, String profileImageUrl) {
+    public User(String userKey, String userName, String cityKey, String cityName, String profileSummary, String profileImageUrl, long movedToCityDate) {
         this.userKey = userKey;
         this.userName = userName;
         this.cityKey = cityKey; //placeId (places api)
         this.cityName = cityName;
         this.profileSummary = profileSummary;
         this.profileImageUrl = profileImageUrl;
+        this.movedToCityDate = movedToCityDate;
+    }
+
+    public long getMovedToCityDate() {
+        return movedToCityDate;
+    }
+
+    public void setMovedToCityDate(long movedToCityDate) {
+        this.movedToCityDate = movedToCityDate;
     }
 
     public String getUserEmailAddress() {
@@ -116,6 +127,7 @@ public class User implements FirebaseContract.FirebaseMapObject, Serializable {
         result.put(CITY_NAME, cityName);
         result.put(PROFILE_SUMMARY, profileSummary);
         result.put(PROFILE_IMAGE_URL, profileImageUrl);
+        result.put(MOVED_TO_CITY_DATE, movedToCityDate);
 
         return result;
     }
