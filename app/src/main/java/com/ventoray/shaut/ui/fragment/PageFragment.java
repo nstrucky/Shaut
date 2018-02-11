@@ -23,6 +23,8 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.ventoray.shaut.R;
 import com.ventoray.shaut.firebase.FirebaseContract;
+import com.ventoray.shaut.firebase.Write;
+import com.ventoray.shaut.model.FriendRequest;
 import com.ventoray.shaut.model.User;
 import com.ventoray.shaut.ui.adapter.TestRecyclerAdapter;
 import com.ventoray.shaut.util.FileHelper;
@@ -32,7 +34,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ventoray.shaut.model.User.MOVED_TO_CITY_DATE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -56,7 +57,7 @@ public class PageFragment extends Fragment {
     public static final String ARGS_KEY_PAGE_TYPE =
             "com.ventoray.shaut.ui.fragment.PageFragment.ARGS_KEY_PAGE_TYPE";
 
-    public static final int PAGINATION_LIMIT = 2;
+    public static final int PAGINATION_LIMIT = 10;
 
     private static final String LOG_TAG = "PageFragment";
 
@@ -101,6 +102,31 @@ public class PageFragment extends Fragment {
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
+        initializeSwipeRefreshLayout(view);
+
+        try {
+            initializePage(pageType, view);
+        } catch (IllegalArgumentException e) {
+            Log.e(LOG_TAG, e.getLocalizedMessage());
+        }
+
+        return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+    }
+
+    private void setPageType() {
+        Bundle args = getArguments();
+        if (args != null && args.containsKey(ARGS_KEY_PAGE_TYPE)) {
+            pageType = args.getInt(ARGS_KEY_PAGE_TYPE);
+        }
+    }
+
+    private void initializeSwipeRefreshLayout(View view) {
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -130,27 +156,6 @@ public class PageFragment extends Fragment {
 
             }
         });
-
-        try {
-            initializePage(pageType, view);
-        } catch (IllegalArgumentException e) {
-            Log.e(LOG_TAG, e.getLocalizedMessage());
-        }
-
-        return view;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-    }
-
-    private void setPageType() {
-        Bundle args = getArguments();
-        if (args != null && args.containsKey(ARGS_KEY_PAGE_TYPE)) {
-            pageType = args.getInt(ARGS_KEY_PAGE_TYPE);
-        }
     }
 
     private void initializePage(@PageType int pageType, View view) {
@@ -182,10 +187,19 @@ public class PageFragment extends Fragment {
      **********************************************************************************************/
 
     private void initializeFriendFinderPage() {
-        Query query = db.collection(FirebaseContract.UsersNode.NAME)
-                /*.orderBy(MOVED_TO_CITY_DATE, Query.Direction.DESCENDING)*/;
+        Query query = db.collection(FirebaseContract.UsersCollection.NAME)
+                /*.orderBy(FIELD_MOVED_TO_CITY_DATE, Query.Direction.DESCENDING)*/;
         potentialFriends = new ArrayList<>();
-        testAdapter = new TestRecyclerAdapter(this.getContext(), potentialFriends);
+        testAdapter = new TestRecyclerAdapter(this.getContext(), potentialFriends,
+                new TestRecyclerAdapter.OnFriendRequetedCallback() {
+                    @Override
+                    public void onFriendRequested(FriendRequest friendRequest) {
+                        Toast.makeText(getContext(),
+                                R.string.friend_request_sent,
+                                Toast.LENGTH_SHORT).show();
+                        Write.sendFriendRequest(friendRequest, userObject, db, null);
+                    }
+                });
         recyclerView.setAdapter(testAdapter);
         //users/$userId/user_object/cityKey = true
 
@@ -194,21 +208,21 @@ public class PageFragment extends Fragment {
             Toast.makeText(PageFragment.this.getContext(), "No City", Toast.LENGTH_SHORT).show();
             return;
         }
-        getPotentialFriends(query, cityKey);
+        getPotentialFriends(query, cityKey, true);
     }
-
 
     private void refreshFriendFinder() {
-        Query query = db.collection(FirebaseContract.UsersNode.NAME);
+        Query query = db.collection(FirebaseContract.UsersCollection.NAME);
         String cityKey = userObject.getCityKey();
-        getPotentialFriends(query, cityKey);
+        getPotentialFriends(query, cityKey, false);
     }
 
-    private void getPotentialFriends(Query query, String cityKey) {
-        query = query.whereEqualTo(User.CITY_KEY, cityKey)
-                .orderBy(MOVED_TO_CITY_DATE, Query.Direction.DESCENDING);
+    private void getPotentialFriends(Query query, String cityKey, boolean startFromNewest) {
+        query = query.whereEqualTo(FirebaseContract.UsersCollection.User.FIELD_CITY_KEY, cityKey)
+                .orderBy(FirebaseContract.UsersCollection.User.FIELD_MOVED_TO_CITY_DATE,
+                        Query.Direction.DESCENDING);
 
-        if (!onLast && lastVisible != null) {
+        if (!onLast && lastVisible != null && !startFromNewest) {
             query = query.startAt(lastVisible);
         }
         query.limit(PAGINATION_LIMIT)
@@ -228,7 +242,9 @@ public class PageFragment extends Fragment {
                         List<User> users = documentSnapshots.toObjects(User.class);
                         potentialFriends.clear();
                         for (User user : users) {
-                            potentialFriends.add(user);
+                            if (!user.getUserKey().equals(userObject.getUserKey())) {
+                                potentialFriends.add(user);
+                            }
                             Log.d(LOG_TAG, user.getUserEmailAddress());
                         }
 
@@ -242,6 +258,9 @@ public class PageFragment extends Fragment {
             }
         });
     }
+
+
+
 
 
 }

@@ -5,11 +5,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.ventoray.shaut.R;
+import com.ventoray.shaut.model.FriendRequest;
 import com.ventoray.shaut.model.User;
 
 import java.util.List;
@@ -20,12 +22,19 @@ import java.util.List;
 
 public class TestRecyclerAdapter extends RecyclerView.Adapter<TestRecyclerAdapter.TestViewHolder> {
 
+    public interface OnFriendRequetedCallback {
+        void onFriendRequested(FriendRequest friendRequest);
+    }
+
     private List<User> users;
     private Context context;
+    private OnFriendRequetedCallback friendRequetedCallback;
 
-    public TestRecyclerAdapter(Context context, List<User> users) {
+    public TestRecyclerAdapter(Context context, List<User> users,
+                               OnFriendRequetedCallback friendRequetedCallback) {
         this.context = context;
         this.users = users;
+        this.friendRequetedCallback = friendRequetedCallback;
     }
 
 
@@ -65,11 +74,12 @@ public class TestRecyclerAdapter extends RecyclerView.Adapter<TestRecyclerAdapte
         return users.size();
     }
 
-    class TestViewHolder extends RecyclerView.ViewHolder {
+    class TestViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView profileImageView;
         TextView userNameTextView;
         TextView userProfileTextView;
+        ImageButton friendRequestButton;
 
         public TestViewHolder(View itemView) {
             super(itemView);
@@ -77,7 +87,21 @@ public class TestRecyclerAdapter extends RecyclerView.Adapter<TestRecyclerAdapte
             profileImageView = itemView.findViewById(R.id.imageView_profilePicture);
             userNameTextView = itemView.findViewById(R.id.textView_userName);
             userProfileTextView = itemView.findViewById(R.id.textView_profileText);
+            friendRequestButton = itemView.findViewById(R.id.imageButton_addFriend);
+            friendRequestButton.setOnClickListener(this);
+
+        }
+
+        @Override
+        public void onClick(View view) {
+            int position = getAdapterPosition();
+            User user = users.get(position);
+            String potentialFriendKey = user.getUserKey();
+            FriendRequest friendRequest = new FriendRequest();
+            friendRequest.setPotentialFriendKey(potentialFriendKey);
+            friendRequetedCallback.onFriendRequested(friendRequest);
 
         }
     }
+
 }

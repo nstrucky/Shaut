@@ -7,6 +7,15 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.FIELD_CITY_KEY;
+import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.FIELD_CITY_NAME;
+import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.FIELD_MOVED_TO_CITY_DATE;
+import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.FIELD_PROFILE_IMAGE_URL;
+import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.FIELD_PROFILE_SUMMARY;
+import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.FIELD_USER_EMAIL_ADDRESS;
+import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.FIELD_USER_KEY;
+import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.FIELD_USER_NAME;
+
 /**
  * Created by Nick on 2/4/2018.
  */
@@ -16,14 +25,7 @@ public class User implements FirebaseContract.FirebaseMapObject, Serializable {
     /**
      *  These are the key names for the variables to be stored in Firebase
      */
-    public static final String USER_KEY = "userKey";
-    public static final String USER_NAME = "userName";
-    public static final String USER_EMAIL_ADDRESS = "userEmailAddress";
-    public static final String CITY_KEY = "cityKey";
-    public static final String CITY_NAME = "cityName";
-    public static final String PROFILE_SUMMARY = "profileSummary";
-    public static final String PROFILE_IMAGE_URL = "profileImageUrl";
-    public static final String MOVED_TO_CITY_DATE = "movedToCityDate";
+
 
 
     private String userKey;
@@ -120,14 +122,14 @@ public class User implements FirebaseContract.FirebaseMapObject, Serializable {
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
 
-        result.put(USER_KEY, userKey);
-        result.put(USER_NAME, userName);
-        result.put(USER_EMAIL_ADDRESS, userEmailAddress);
-        result.put(CITY_KEY, cityKey);
-        result.put(CITY_NAME, cityName);
-        result.put(PROFILE_SUMMARY, profileSummary);
-        result.put(PROFILE_IMAGE_URL, profileImageUrl);
-        result.put(MOVED_TO_CITY_DATE, movedToCityDate);
+        result.put(FIELD_USER_KEY, userKey);
+        result.put(FIELD_USER_NAME, userName);
+        result.put(FIELD_USER_EMAIL_ADDRESS, userEmailAddress);
+        result.put(FIELD_CITY_KEY, cityKey);
+        result.put(FIELD_CITY_NAME, cityName);
+        result.put(FIELD_PROFILE_SUMMARY, profileSummary);
+        result.put(FIELD_PROFILE_IMAGE_URL, profileImageUrl);
+        result.put(FIELD_MOVED_TO_CITY_DATE, movedToCityDate);
 
         return result;
     }

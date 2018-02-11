@@ -3,8 +3,11 @@ package com.ventoray.shaut.firebase;
 import android.support.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.ventoray.shaut.model.FriendRequest;
 import com.ventoray.shaut.model.User;
 
 import java.util.HashMap;
@@ -15,6 +18,35 @@ import java.util.Map;
  */
 
 public class Write {
+
+
+    /**
+     * Writes the friend request to the potential friend's strangers requests collection
+     * @param friendRequest
+     * @param userObject
+     * @param db
+     * @param successListener
+     */
+    public static void sendFriendRequest(FriendRequest friendRequest, User userObject,
+                                         FirebaseFirestore db, OnSuccessListener successListener) {
+        String potentialFriendKey = friendRequest.getPotentialFriendKey();
+
+        friendRequest.setRequesterImageUrl(userObject.getProfileImageUrl());
+        friendRequest.setRequesterUserKey(userObject.getUserKey());
+        friendRequest.setRequesterUserName(userObject.getUserName());
+
+        db.collection(FirebaseContract.UsersCollection.NAME)
+                .document(potentialFriendKey)
+                .collection(FirebaseContract.UsersCollection.User.StrangersRequestCollection.NAME)
+                .document(userObject.getUserKey())
+                .set(friendRequest).addOnSuccessListener(successListener);
+    }
+
+
+
+
+
+
 
     /**
      * Allows the user to write an object to any path given the node string args
@@ -51,11 +83,11 @@ public class Write {
         String userId = userObject.getUserKey();
         String newCityId = userObject.getCityKey();
         Map<String, Object> userValues = userObject.toMap();
-        childUpdates.put(FirebaseContract.UsersNode.NAME + "/" +
+        childUpdates.put(FirebaseContract.UsersCollection.NAME + "/" +
                 userId + "/" +
-                FirebaseContract.UsersNode.User.USER_OBJECT,
+                FirebaseContract.UsersCollection.User.NAME,
                 userValues);
-        childUpdates.put(FirebaseContract.CitiesNode.NAME + "/" +
+        childUpdates.put(FirebaseContract.CitiesNode.COLLECTION + "/" +
                         newCityId + "/" +
                         FirebaseContract.CitiesNode.City.USERS_NODE + "/" +
                         userId,
@@ -64,7 +96,7 @@ public class Write {
         databaseReference.updateChildren(childUpdates).addOnCompleteListener(listener);
 
         if (oldCityId != null && !oldCityId.isEmpty()) {
-            databaseReference.child(FirebaseContract.CitiesNode.NAME)
+            databaseReference.child(FirebaseContract.CitiesNode.COLLECTION)
                     .child(oldCityId)
                     .child(FirebaseContract.CitiesNode.City.USERS_NODE)
                     .child(userId)

@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity
 
     private void getUserObjectFromFirestore() {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db.collection(FirebaseContract.UsersNode.NAME)
+        db.collection(FirebaseContract.UsersCollection.NAME)
                 .document(uid)
                 .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity
         FileHelper.writeObjectToFile(this, userObject, USER_OBJECT_FILE);
 
 //        Write.updateUserCity(userObject, oldCityId, null);
-        db.collection(FirebaseContract.UsersNode.NAME)
+        db.collection(FirebaseContract.UsersCollection.NAME)
                 .document(userObject.getUserKey())
                 .set(userObject.toMap());
 
