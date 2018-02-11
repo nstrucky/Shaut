@@ -20,7 +20,7 @@ import java.util.List;
  * Created by Nick on 2/7/2018.
  */
 
-public class TestRecyclerAdapter extends RecyclerView.Adapter<TestRecyclerAdapter.TestViewHolder> {
+public class FriendFinderAdapter extends RecyclerView.Adapter<FriendFinderAdapter.FriendFinderViewHolder> {
 
     public interface OnFriendRequetedCallback {
         void onFriendRequested(FriendRequest friendRequest);
@@ -30,7 +30,7 @@ public class TestRecyclerAdapter extends RecyclerView.Adapter<TestRecyclerAdapte
     private Context context;
     private OnFriendRequetedCallback friendRequetedCallback;
 
-    public TestRecyclerAdapter(Context context, List<User> users,
+    public FriendFinderAdapter(Context context, List<User> users,
                                OnFriendRequetedCallback friendRequetedCallback) {
         this.context = context;
         this.users = users;
@@ -39,15 +39,15 @@ public class TestRecyclerAdapter extends RecyclerView.Adapter<TestRecyclerAdapte
 
 
     @Override
-    public TestViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public FriendFinderViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.list_item_friend_finder, parent, false);
-        return new TestViewHolder(view);
+        return new FriendFinderViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(TestViewHolder holder, int position) {
+    public void onBindViewHolder(FriendFinderViewHolder holder, int position) {
         User user = users.get(position);
         String userName = user.getUserName();
         if (userName == null) userName = user.getUserEmailAddress();
@@ -74,14 +74,14 @@ public class TestRecyclerAdapter extends RecyclerView.Adapter<TestRecyclerAdapte
         return users.size();
     }
 
-    class TestViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class FriendFinderViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView profileImageView;
         TextView userNameTextView;
         TextView userProfileTextView;
         ImageButton friendRequestButton;
 
-        public TestViewHolder(View itemView) {
+        public FriendFinderViewHolder(View itemView) {
             super(itemView);
 
             profileImageView = itemView.findViewById(R.id.imageView_profilePicture);

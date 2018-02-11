@@ -20,6 +20,7 @@ public class FriendRequest {
     private String requesterUserKey;
     private String requesterUserName;
     private String requesterImageUrl;
+    private String requesterProfileContent;
     private String potentialFriendKey;
     private String cityKey;
     private String cityName;
@@ -28,11 +29,12 @@ public class FriendRequest {
     public FriendRequest() {}
 
     public FriendRequest(String requesterUserKey, String requesterUserName,
-                         String requesterImageUrl, String potentialFriendKey,
-                         String cityKey, String cityName) {
+                         String requesterImageUrl, String requesterProfileContent,
+                         String potentialFriendKey, String cityKey, String cityName) {
         this.requesterUserKey = requesterUserKey;
         this.requesterUserName = requesterUserName;
         this.potentialFriendKey = potentialFriendKey;
+        this.requesterProfileContent = requesterProfileContent;
         this.cityKey = cityKey;
         this.cityName = cityName;
         this.requesterImageUrl = requesterImageUrl;
@@ -84,6 +86,14 @@ public class FriendRequest {
 
     public void setPotentialFriendKey(String potentialFriendKey) {
         this.potentialFriendKey = potentialFriendKey;
+    }
+
+    public String getRequesterProfileContent() {
+        return requesterProfileContent;
+    }
+
+    public void setRequesterProfileContent(String requesterProfileContent) {
+        this.requesterProfileContent = requesterProfileContent;
     }
 
     public Map<String, Object> toMap() {

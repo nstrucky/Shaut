@@ -62,6 +62,7 @@ public class FirebaseContract {
                     public static final String FIELD_REQUESTER_USER_NAME = "requesterUserName";
                     public static final String FIELD_REQUESTER_IMAGE_URL = "requesterImageUrl";
                     public static final String FIELD_POTENTIAL_FRIEND_KEY = "potentialFriendKey";
+                    public static final String FIELD_REQUESTER_PROFILE_CONTENT = "requesterProfileContent";
                     public static final String FIELD_CITY_KEY = "cityKey";
                     public static final String FIELD_CITY_NAME = "cityName";
                 }

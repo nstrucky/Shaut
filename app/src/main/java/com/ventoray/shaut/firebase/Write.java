@@ -42,12 +42,6 @@ public class Write {
                 .set(friendRequest).addOnSuccessListener(successListener);
     }
 
-
-
-
-
-
-
     /**
      * Allows the user to write an object to any path given the node string args
      * @param object - object to be saved to database

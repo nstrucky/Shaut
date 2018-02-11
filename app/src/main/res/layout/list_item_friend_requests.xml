@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -28,7 +28,7 @@
 
 
     <ImageButton
-        android:id="@+id/button_reject"
+        android:id="@+id/button_decline"
         style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -48,18 +48,15 @@
         android:layout_marginEnd="8dp"
         android:src="@drawable/ic_done_black_18px"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/button_reject" />
+        app:layout_constraintEnd_toStartOf="@+id/button_decline" />
 
     <TextView
         android:id="@+id/textView_userName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/margin_children_horizontal"
-        android:layout_marginStart="@dimen/margin_children_horizontal"
-        android:layout_marginTop="@dimen/margin_children_vertical"
-        tools:text="TextView"
-        app:layout_constraintEnd_toEndOf="@+id/include_profilePicture"
+        android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="@+id/include_profilePicture"
-        app:layout_constraintTop_toBottomOf="@+id/include_profilePicture" />
+        app:layout_constraintTop_toBottomOf="@+id/include_profilePicture"
+        tools:text="TextView" />
 
 </android.support.constraint.ConstraintLayout>

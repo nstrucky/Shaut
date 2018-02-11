@@ -26,7 +26,8 @@ import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.firebase.Write;
 import com.ventoray.shaut.model.FriendRequest;
 import com.ventoray.shaut.model.User;
-import com.ventoray.shaut.ui.adapter.TestRecyclerAdapter;
+import com.ventoray.shaut.ui.adapter.FriendFinderAdapter;
+import com.ventoray.shaut.ui.adapter.FriendReqeustAdapter;
 import com.ventoray.shaut.util.FileHelper;
 
 import java.lang.annotation.Retention;
@@ -57,22 +58,26 @@ public class PageFragment extends Fragment {
     public static final String ARGS_KEY_PAGE_TYPE =
             "com.ventoray.shaut.ui.fragment.PageFragment.ARGS_KEY_PAGE_TYPE";
 
-    public static final int PAGINATION_LIMIT = 10;
+    public static final int PAGINATION_LIMIT = 3;
 
     private static final String LOG_TAG = "PageFragment";
 
-    private int pageType;
-    private User userObject;
+
+    //friend request page
+    private List<FriendRequest> friendRequests;
+
+    //friend finder page
     private List<User> potentialFriends;
-    private FirebaseFirestore db;
-    private TestRecyclerAdapter testAdapter;
+
+    //all pages
     private SwipeRefreshLayout swipeRefreshLayout;
-
-    private DocumentSnapshot lastVisible;
-    private boolean onLast;
-
-
+    private RecyclerView.Adapter adapter;
+    private FirebaseFirestore db;
+    private int pageType;
     private RecyclerView recyclerView;
+    private User userObject;
+    private boolean onLast;
+    private DocumentSnapshot lastVisible;
 
     public PageFragment() {
         // Required empty public constructor
@@ -169,7 +174,7 @@ public class PageFragment extends Fragment {
                 break;
 
             case PAGE_TYPE_FRIEND_REQUESTS:
-
+                initializeFriendRequestsPage();
                 break;
 
             case PAGE_TYPE_MESSAGES:
@@ -182,16 +187,85 @@ public class PageFragment extends Fragment {
     }
 
 
+    private void initializeFriendRequestsPage() {
+        Query query = db.collection(FirebaseContract.UsersCollection.NAME)
+                .document(userObject.getUserKey())
+                .collection(FirebaseContract.UsersCollection.User.StrangersRequestCollection.NAME);
+        friendRequests = new ArrayList<>();
+        adapter = new FriendReqeustAdapter(getContext(), friendRequests,
+                new FriendReqeustAdapter.OnFriendRequestResponseListener() {
+                    @Override
+                    public void onResponse(FriendRequest friendRequest, boolean accepted) {
+                        String message = accepted ? getString(R.string.accepted) :
+                                getString(R.string.declined);
+
+                        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                    }
+                });
+        recyclerView.setAdapter(adapter);
+        getFriendRequests(query);
+    }
+
+    private void getFriendRequests(Query query) {
+        query
+                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot documentSnapshots) {
+                friendRequests.clear();
+                if (documentSnapshots != null && documentSnapshots.size() > 0) {
+                    for (DocumentSnapshot documentSnapshot : documentSnapshots) {
+                        FriendRequest request = documentSnapshot.toObject(FriendRequest.class);
+
+                        friendRequests.add(request);
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(LOG_TAG, e.getMessage());
+            }
+        });
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /***********************************************************************************************
      * Friend finder page methods
      **********************************************************************************************/
 
     private void initializeFriendFinderPage() {
-        Query query = db.collection(FirebaseContract.UsersCollection.NAME)
-                /*.orderBy(FIELD_MOVED_TO_CITY_DATE, Query.Direction.DESCENDING)*/;
+        Query query = db.collection(FirebaseContract.UsersCollection.NAME);
         potentialFriends = new ArrayList<>();
-        testAdapter = new TestRecyclerAdapter(this.getContext(), potentialFriends,
-                new TestRecyclerAdapter.OnFriendRequetedCallback() {
+        adapter = new FriendFinderAdapter(this.getContext(), potentialFriends,
+                new FriendFinderAdapter.OnFriendRequetedCallback() {
                     @Override
                     public void onFriendRequested(FriendRequest friendRequest) {
                         Toast.makeText(getContext(),
@@ -200,7 +274,7 @@ public class PageFragment extends Fragment {
                         Write.sendFriendRequest(friendRequest, userObject, db, null);
                     }
                 });
-        recyclerView.setAdapter(testAdapter);
+        recyclerView.setAdapter(adapter);
         //users/$userId/user_object/cityKey = true
 
         String cityKey = userObject.getCityKey();
@@ -236,8 +310,12 @@ public class PageFragment extends Fragment {
                         } else {
                             onLast = false;
                         }
-                        lastVisible = documentSnapshots.getDocuments()
-                                .get(documentSnapshots.size() - 1);
+
+                        List<DocumentSnapshot> snapshots = documentSnapshots.getDocuments();
+                        if (snapshots != null && snapshots.size() > 0) {
+                            lastVisible = snapshots
+                                    .get(documentSnapshots.size() - 1);
+                        }
 
                         List<User> users = documentSnapshots.toObjects(User.class);
                         potentialFriends.clear();
@@ -248,7 +326,7 @@ public class PageFragment extends Fragment {
                             Log.d(LOG_TAG, user.getUserEmailAddress());
                         }
 
-                        testAdapter.notifyDataSetChanged();
+                        adapter.notifyDataSetChanged();
                         swipeRefreshLayout.setRefreshing(false);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
