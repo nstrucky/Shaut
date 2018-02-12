@@ -28,8 +28,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.ventoray.shaut.R;
 import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.firebase.Write;
+import com.ventoray.shaut.model.ChatMetaData;
 import com.ventoray.shaut.model.FriendRequest;
 import com.ventoray.shaut.model.User;
+import com.ventoray.shaut.ui.adapter.ChatroomsAdapter;
 import com.ventoray.shaut.ui.adapter.FriendFinderAdapter;
 import com.ventoray.shaut.ui.adapter.FriendReqeustAdapter;
 import com.ventoray.shaut.util.FileHelper;
@@ -38,6 +40,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.ChatroomsCollection.ChatMetaData.FIELD_TIMESTAMP;
 
 
 /**
@@ -66,6 +70,9 @@ public class PageFragment extends Fragment {
 
     private static final String LOG_TAG = "PageFragment";
 
+    //Chatrooms page
+    private ListenerRegistration chatroomsReg;
+    private List<ChatMetaData> chatMetaDataList;
 
     //friend request page
     private List<FriendRequest> friendRequests;
@@ -172,6 +179,8 @@ public class PageFragment extends Fragment {
     }
 
     private void initializePage(@PageType int pageType, View view) {
+
+        Log.d(LOG_TAG, "Page type: " + pageType);
         switch (pageType) {
             case PAGE_TYPE_FRIENDFINDER:
                 initializeFriendFinderPage();
@@ -186,7 +195,7 @@ public class PageFragment extends Fragment {
                 break;
 
             case PAGE_TYPE_MESSAGES:
-
+                initializeChatroomsPage();
                 break;
 
             default:
@@ -206,15 +215,65 @@ public class PageFragment extends Fragment {
         }
     }
 
-
+    /**
+     * Removing ListenerRegistration objects in order to detach listeners
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
         if (friendRequestReg != null) {
             friendRequestReg.remove();
         }
+
+        if (chatroomsReg != null) {
+            chatroomsReg.remove();
+        }
     }
 
+    /***********************************************************************************************
+     * Chatrooms page methods
+     ***********************************************************************************************/
+
+    private void initializeChatroomsPage() {
+        Query chatroomsQuery = db
+                .collection(FirebaseContract.UsersCollection.NAME)
+                .document(userObject.getUserKey())
+                .collection(FirebaseContract.UsersCollection.ChatroomsCollection.NAME);
+//                .orderBy(FIELD_TIMESTAMP, Query.Direction.DESCENDING)
+//                .limit(PAGINATION_LIMIT);
+        chatMetaDataList = new ArrayList<>();
+        adapter = new ChatroomsAdapter(getContext(), chatMetaDataList,
+                new ChatroomsAdapter.OnChatRoomClickedListener() {
+                    @Override
+                    public void onChatRoomClicked(ChatMetaData metaData) {
+                      //TODO open chatroom
+                        Toast.makeText(getContext(), metaData.getFriendName(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+        recyclerView.setAdapter(adapter);
+        chatroomsReg = chatroomsQuery.addSnapshotListener(chatroomListener);
+    }
+
+    EventListener<QuerySnapshot> chatroomListener = new EventListener<QuerySnapshot>() {
+        @Override
+        public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
+            chatMetaDataList.clear();
+            if (documentSnapshots != null && documentSnapshots.size() > 0) {
+                for (DocumentSnapshot documentSnapshot : documentSnapshots) {
+                    if (documentSnapshot == null) continue;
+                    ChatMetaData chatMetaData = documentSnapshot.toObject(ChatMetaData.class);
+                    chatMetaDataList.add(chatMetaData);
+                }
+                adapter.notifyDataSetChanged();
+                emptyTextVisiblity();
+            } else {
+//                Log.e(LOG_TAG, e.getLocalizedMessage());
+
+                Toast.makeText(getContext(), "Nothing!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 
     /***********************************************************************************************
      * Friend request page methods

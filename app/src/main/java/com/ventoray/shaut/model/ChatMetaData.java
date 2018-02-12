@@ -23,6 +23,8 @@ public class ChatMetaData {
     private String friendName;
     private String lastMessage;
 
+    public ChatMetaData() {}
+
     public ChatMetaData(long timeStamp, String userKey, String userName, String friendKey, String friendName, String lastMessage) {
         this.timeStamp = timeStamp;
         this.userKey = userKey;
