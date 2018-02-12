@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:padding="@dimen/padding_messages">
 
 
@@ -16,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <TextView
-            android:id="@+id/textView_message_user"
+            android:id="@+id/textView_message"
             style="@style/ChatMessages"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -24,9 +24,10 @@
             tools:text="a;sdlkfjas;ldkfjasl;dkfjsalkdfjwleknuisdlkjsabladbclsakjdbfalskd" />
 
         <TextView
-            android:id="@+id/textView_message_timestamp_user"
+            android:id="@+id/textView_message_timestamp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="@dimen/time_stamp_font_size"
             tools:text="ten o'clock" />
 
 

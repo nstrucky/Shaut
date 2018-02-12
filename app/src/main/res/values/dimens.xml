@@ -45,5 +45,6 @@
     <dimen name="max_width_messages">300dp</dimen>
     <dimen name="padding_messages">5dp</dimen>
     <dimen name="corner_radius_messages">10dp</dimen>
+    <dimen name="time_stamp_font_size">10sp</dimen>
 
 </resources>

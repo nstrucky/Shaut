@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
-            android:id="@+id/textView_message_user"
+            android:id="@+id/textView_message"
             style="@style/ChatMessages"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -23,7 +23,8 @@
             tools:text="a;sdlkfjas;ldkfjasl;dkfjsalkdfjwleknuisdlkjsabladbclsakjdbfalskd" />
 
         <TextView
-            android:id="@+id/textView_message_timestamp_user"
+            android:id="@+id/textView_message_timestamp"
+            android:textSize="@dimen/time_stamp_font_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="ten o'clock" />
