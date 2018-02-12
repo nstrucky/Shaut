@@ -31,7 +31,11 @@
     <string name="declined">Declined friendship</string>
     <string name="start_over">Start Over!</string>
     <string name="no_requests">No friend requests.</string>
+    <string name="friendship_greeting">Welcome to friendship!</string>
 
     <!--list item chatroom-->
     <string name="default_first_letter">\?</string>
+
+    <!--MessageActivity-->
+    <string name="hint_type_message">Type message here</string>
 </resources>

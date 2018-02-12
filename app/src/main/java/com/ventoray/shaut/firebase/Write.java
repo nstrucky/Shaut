@@ -137,11 +137,12 @@ public class Write {
                 .document();
         chatroomId = messagesRef.getId(); //create chatroom ID here and use it later
 
-        messagesRef
+        messagesRef = messagesRef
                 .collection(FirebaseContract.MessagesCollection.ChatMessagesCollection.NAME)
                 .document();
 
-        ChatMetaData userChatMetaData = new ChatMetaData(time, userKey, userName, friendKey, friendName, message.getMessageText());
+        ChatMetaData userChatMetaData = new ChatMetaData(chatroomId, time, userKey, userName,
+                friendKey, friendName, message.getMessageText());
         //Create users col/user doc/chatrooms col/chatmetadata doc/chatmetadata
         DocumentReference userChatMetaDataRef = db
                 .collection(FirebaseContract.UsersCollection.NAME)
@@ -149,7 +150,8 @@ public class Write {
                 .collection(FirebaseContract.UsersCollection.User.ChatroomsCollection.NAME)
                 .document(chatroomId);
 
-        ChatMetaData friendChatMetaData = new ChatMetaData(time, friendKey, friendName, userKey, userName, message.getMessageText());
+        ChatMetaData friendChatMetaData = new ChatMetaData(chatroomId, time, friendKey, friendName,
+                userKey, userName, message.getMessageText());
         //Create users col/user doc/chatrooms col/chatmetadata doc/chatmetadata
         DocumentReference friendChatMetaDataRef = db
                 .collection(FirebaseContract.UsersCollection.NAME)
@@ -175,6 +177,60 @@ public class Write {
                 }
             }
         });
+    }
+
+
+    public static void sendMessage(String message, FirebaseFirestore db, User userObject,
+                                   ChatMetaData userChatMetaData) {
+        WriteBatch batch = db.batch();
+        ChatMetaData friendsChatMetaData;
+        long time = new Date().getTime();
+
+        String userName = userObject.getUserName();
+        String userKey = userObject.getUserKey();
+        String friendName = userChatMetaData.getFriendName();
+        String friendKey = userChatMetaData.getFriendKey();
+        String chatroomId = userChatMetaData.getChatroomId();
+
+        ChatMessage chatMessage = new ChatMessage(userName, userKey, message, time);
+
+        //update meta data
+        userChatMetaData.setLastMessage("You: "+message);
+        userChatMetaData.setTimeStamp(time);
+
+        //create mirror chatmetadata for friend
+        friendsChatMetaData = new ChatMetaData(chatroomId, time, friendKey, friendName, userKey,
+                userName, message);
+
+        //get messages col/chatroom doc/chatmessages col/chatmessage
+        DocumentReference chagMessageRef = db
+                .collection(FirebaseContract.MessagesCollection.NAME)
+                .document(userChatMetaData.getChatroomId())
+                .collection(FirebaseContract.MessagesCollection.ChatMessagesCollection.NAME)
+                .document();
+
+        //get users col/user doc/chatrooms col/chatmetadata doc/chatmetadata
+        DocumentReference userChatMetaDataRef = db
+                .collection(FirebaseContract.UsersCollection.NAME)
+                .document(userKey)
+                .collection(FirebaseContract.UsersCollection.User.ChatroomsCollection.NAME)
+                .document(chatroomId);
+
+        //get users col/user doc/chatrooms col/chatmetadata doc/chatmetadata
+        DocumentReference friendChatMetaDataRef = db
+                .collection(FirebaseContract.UsersCollection.NAME)
+                .document(friendKey)
+                .collection(FirebaseContract.UsersCollection.User.ChatroomsCollection.NAME)
+                .document(chatroomId);
+
+
+        //set all info and commit
+        batch.set(chagMessageRef, chatMessage);
+        batch.set(userChatMetaDataRef, userChatMetaData);
+        batch.set(friendChatMetaDataRef, friendsChatMetaData);
+        batch.commit();
+
+
     }
 
 }

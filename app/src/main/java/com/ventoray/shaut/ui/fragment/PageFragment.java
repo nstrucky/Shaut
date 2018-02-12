@@ -1,6 +1,7 @@
 package com.ventoray.shaut.ui.fragment;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
@@ -31,6 +32,7 @@ import com.ventoray.shaut.firebase.Write;
 import com.ventoray.shaut.model.ChatMetaData;
 import com.ventoray.shaut.model.FriendRequest;
 import com.ventoray.shaut.model.User;
+import com.ventoray.shaut.ui.MessageActivity;
 import com.ventoray.shaut.ui.adapter.ChatroomsAdapter;
 import com.ventoray.shaut.ui.adapter.FriendFinderAdapter;
 import com.ventoray.shaut.ui.adapter.FriendReqeustAdapter;
@@ -42,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.ChatroomsCollection.ChatMetaData.FIELD_TIMESTAMP;
+import static com.ventoray.shaut.ui.MessageActivity.PARCEL_KEY_CHAT_META_DATA;
 
 
 /**
@@ -246,9 +249,9 @@ public class PageFragment extends Fragment {
                 new ChatroomsAdapter.OnChatRoomClickedListener() {
                     @Override
                     public void onChatRoomClicked(ChatMetaData metaData) {
-                      //TODO open chatroom
-                        Toast.makeText(getContext(), metaData.getFriendName(),
-                                Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(getContext(), MessageActivity.class);
+                        intent.putExtra(PARCEL_KEY_CHAT_META_DATA, metaData);
+                        startActivity(intent);
                     }
                 });
         recyclerView.setAdapter(adapter);
@@ -268,9 +271,7 @@ public class PageFragment extends Fragment {
                 adapter.notifyDataSetChanged();
                 emptyTextVisiblity();
             } else {
-//                Log.e(LOG_TAG, e.getLocalizedMessage());
-
-                Toast.makeText(getContext(), "Nothing!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.something_wrong, Toast.LENGTH_SHORT).show();
             }
         }
     };

@@ -45,7 +45,6 @@ public class FirebaseContract {
                 public static final String FIELD_MESSAGE_TIME = "messageTime";
             }
         }
-
     }
 
     public static class ShautsCollection {
@@ -83,7 +82,8 @@ public class FirebaseContract {
                 public static class ChatMetaData {
                     public static final String NAME = "chatmetadata_object";
 
-                    public static final String FIELD_TIMESTAMP = "timestamp";
+                    public static final String FIELD_CHATROOM_ID = "chatroomId";
+                    public static final String FIELD_TIMESTAMP = "timeStamp";
                     public static final String FIELD_USER_KEY = "userKey";
                     public static final String FIELD_USER_NAME = "userName";
                     public static final String FIELD_FRIEND_KEY = "friendKey";

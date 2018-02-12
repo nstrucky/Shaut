@@ -13,6 +13,7 @@ import com.ventoray.shaut.model.ChatMetaData;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Nick on 2/11/2018.
