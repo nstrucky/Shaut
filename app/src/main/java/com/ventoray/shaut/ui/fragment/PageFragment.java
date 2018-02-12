@@ -2,7 +2,6 @@ package com.ventoray.shaut.ui.fragment;
 
 
 import android.os.Bundle;
-import android.os.Message;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,11 +16,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,12 +25,9 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.WriteBatch;
 import com.ventoray.shaut.R;
 import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.firebase.Write;
-import com.ventoray.shaut.model.ChatMessage;
-import com.ventoray.shaut.model.ChatMetaData;
 import com.ventoray.shaut.model.FriendRequest;
 import com.ventoray.shaut.model.User;
 import com.ventoray.shaut.ui.adapter.FriendFinderAdapter;
@@ -44,7 +37,6 @@ import com.ventoray.shaut.util.FileHelper;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 
@@ -237,10 +229,6 @@ public class PageFragment extends Fragment {
                     @Override
                     public void onResponse(FriendRequest friendRequest, boolean accepted) {
                         respondToRequest(friendRequest, accepted);
-                        String message = accepted ? getString(R.string.accepted) :
-                                getString(R.string.declined);
-
-                        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
                     }
                 });
         recyclerView.setAdapter(adapter);
@@ -256,7 +244,6 @@ public class PageFragment extends Fragment {
             if (documentSnapshots != null && documentSnapshots.size() > 0) {
                 for (DocumentSnapshot documentSnapshot : documentSnapshots) {
                     FriendRequest request = documentSnapshot.toObject(FriendRequest.class);
-
                     friendRequests.add(request);
                 }
                 adapter.notifyDataSetChanged();
@@ -274,12 +261,21 @@ public class PageFragment extends Fragment {
      */
     private void respondToRequest(FriendRequest friendRequest, boolean accepted) {
         if (accepted) {
-            initializeFriendship(friendRequest);
+            Write.initializeFriendship(friendRequest, db, userObject);
         } else { //declined friend request
             deleteFriendRequest(friendRequest);
         }
+
+        String message = accepted ? getString(R.string.accepted) :
+                getString(R.string.declined);
+
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Removes the friend request from users strangers request collection
+     * @param friendRequest
+     */
     private void deleteFriendRequest(FriendRequest friendRequest) {
         db.collection(FirebaseContract.UsersCollection.NAME)
                 .document(userObject.getUserKey())
@@ -287,64 +283,6 @@ public class PageFragment extends Fragment {
                 .document(friendRequest.getRequesterUserKey())
                 .delete();
     }
-
-    /**
-     *
-     * @param friendRequest
-     */
-    private void initializeFriendship(final FriendRequest friendRequest) {
-        WriteBatch batch = db.batch();
-        String chatroomId;
-        String userKey = userObject.getUserKey();
-        String userName = userObject.getUserName();
-        String friendKey = friendRequest.getRequesterUserKey();
-        String friendName = friendRequest.getRequesterUserName();
-        long time = new Date().getTime();
-        ChatMessage message = new ChatMessage("", "",
-                "Welcome to Friendship!", time);
-
-        //Create messages col/chatroomID doc/messages col/messages doc/message
-        DocumentReference messagesRef = db
-                .collection(FirebaseContract.MessagesCollection.NAME)
-                .document();
-        chatroomId = messagesRef.getId(); //create chatroom ID here and use it later
-
-        messagesRef
-                .collection(FirebaseContract.MessagesCollection.ChatMessagesCollection.NAME)
-                .document();
-
-        ChatMetaData userChatMetaData = new ChatMetaData(time, userKey, userName, friendKey, friendName, message.getMessageText());
-        //Create users col/user doc/chatrooms col/chatmetadata doc/chatmetadata
-        DocumentReference userChatMetaDataRef = db
-                .collection(FirebaseContract.UsersCollection.NAME)
-                .document(userKey)
-                .collection(FirebaseContract.UsersCollection.ChatroomsCollection.NAME)
-                .document(chatroomId);
-
-        ChatMetaData friendChatMetaData = new ChatMetaData(time, friendKey, friendName, userKey, userName, message.getMessageText());
-        //Create users col/user doc/chatrooms col/chatmetadata doc/chatmetadata
-        DocumentReference friendChatMetaDataRef = db
-                .collection(FirebaseContract.UsersCollection.NAME)
-                .document(friendKey)
-                .collection(FirebaseContract.UsersCollection.ChatroomsCollection.NAME)
-                .document(chatroomId);
-
-        //Set and commit batch update
-        batch.set(messagesRef, message);
-        batch.set(userChatMetaDataRef, userChatMetaData);
-        batch.set(friendChatMetaDataRef, friendChatMetaData);
-        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (!task.isSuccessful()) {
-                    Log.d(LOG_TAG, task.getException().getMessage());
-                } else {
-                    deleteFriendRequest(friendRequest);
-                }
-            }
-        });
-    }
-
 
 
     /***********************************************************************************************

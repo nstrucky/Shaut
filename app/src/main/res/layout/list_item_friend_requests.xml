@@ -10,7 +10,7 @@
         layout="@layout/imageview_circle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="@dimen/margin_children_vertical"
         android:layout_marginStart="@dimen/profile_picture_editor_margin_horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,7 +54,7 @@
         android:id="@+id/textView_userName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/margin_children_vertical"
         app:layout_constraintStart_toStartOf="@+id/include_profilePicture"
         app:layout_constraintTop_toBottomOf="@+id/include_profilePicture"
         tools:text="TextView" />

@@ -31,4 +31,7 @@
     <string name="declined">Declined friendship</string>
     <string name="start_over">Start Over!</string>
     <string name="no_requests">No friend requests.</string>
+
+    <!--list item chatroom-->
+    <string name="default_first_letter">\?</string>
 </resources>

@@ -101,6 +101,9 @@ public class FriendReqeustAdapter extends RecyclerView.Adapter<FriendReqeustAdap
             boolean accepted = viewId == R.id.button_accept;
             int position = getAdapterPosition();
             FriendRequest friendRequest = friendRequests.get(position);
+            if (accepted) {
+                acceptButton.setEnabled(false);
+            }
             requestResponseListener.onResponse(friendRequest, accepted);
         }
     }

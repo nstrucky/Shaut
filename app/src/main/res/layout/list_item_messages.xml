@@ -1,32 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="@dimen/height"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-
-    <include
-        android:id="@+id/include_profilePicture"
-        layout="@layout/imageview_circle"
+    <TextView
+        android:id="@+id/textView_firstLetter"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/profile_picture_editor_margin_horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:paddingLeft="@dimen/first_letter_padding"
+        android:paddingRight="@dimen/first_letter_padding"
+        android:text="@string/default_first_letter"
+        android:textSize="32sp" />
 
     <TextView
         android:id="@+id/textView_userName"
+        style="@style/NameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/margin_children_horizontal"
         android:layout_marginStart="@dimen/margin_children_horizontal"
         android:layout_marginTop="@dimen/margin_children_vertical"
-        tools:text="TextView"
-        app:layout_constraintEnd_toEndOf="@+id/include_profilePicture"
-        app:layout_constraintStart_toStartOf="@+id/include_profilePicture"
-        app:layout_constraintTop_toBottomOf="@+id/include_profilePicture" />
+        app:layout_constraintStart_toEndOf="@+id/textView_firstLetter"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="TextView" />
 
     <TextView
         android:id="@+id/textView_message_preview"
@@ -34,9 +32,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_children_horizontal"
         android:layout_marginTop="@dimen/margin_children_vertical"
-        tools:text="TextView"
-        app:layout_constraintStart_toEndOf="@+id/include_profilePicture"
-        app:layout_constraintTop_toTopOf="@+id/include_profilePicture" />
+        app:layout_constraintStart_toStartOf="@+id/textView_userName"
+        app:layout_constraintTop_toBottomOf="@+id/textView_userName"
+        tools:text="TextView" />
 
     <TextView
         android:id="@+id/textView_timestamp"
@@ -45,6 +43,7 @@
         android:layout_marginBottom="@dimen/margin_children_vertical"
         android:layout_marginEnd="@dimen/margin_children_horizontal"
         tools:text="TextView"
+        style="@style/TimeStampTextView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

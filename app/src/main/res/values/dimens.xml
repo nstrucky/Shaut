@@ -38,4 +38,7 @@
     <!--ListItem-->
     <dimen name="margin_children_horizontal">8dp</dimen>
     <dimen name="margin_children_vertical">8dp</dimen>
+    <dimen name="height">72dp</dimen>
+    <dimen name="first_letter_padding">16dp</dimen>
+
 </resources>
