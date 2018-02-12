@@ -41,4 +41,9 @@
     <dimen name="height">72dp</dimen>
     <dimen name="first_letter_padding">16dp</dimen>
 
+    <!--Messages-->
+    <dimen name="max_width_messages">300dp</dimen>
+    <dimen name="padding_messages">5dp</dimen>
+    <dimen name="corner_radius_messages">10dp</dimen>
+
 </resources>

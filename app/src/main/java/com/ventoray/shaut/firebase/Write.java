@@ -146,7 +146,7 @@ public class Write {
         DocumentReference userChatMetaDataRef = db
                 .collection(FirebaseContract.UsersCollection.NAME)
                 .document(userKey)
-                .collection(FirebaseContract.UsersCollection.ChatroomsCollection.NAME)
+                .collection(FirebaseContract.UsersCollection.User.ChatroomsCollection.NAME)
                 .document(chatroomId);
 
         ChatMetaData friendChatMetaData = new ChatMetaData(time, friendKey, friendName, userKey, userName, message.getMessageText());
@@ -154,7 +154,7 @@ public class Write {
         DocumentReference friendChatMetaDataRef = db
                 .collection(FirebaseContract.UsersCollection.NAME)
                 .document(friendKey)
-                .collection(FirebaseContract.UsersCollection.ChatroomsCollection.NAME)
+                .collection(FirebaseContract.UsersCollection.User.ChatroomsCollection.NAME)
                 .document(chatroomId);
 
         //Set and commit batch update

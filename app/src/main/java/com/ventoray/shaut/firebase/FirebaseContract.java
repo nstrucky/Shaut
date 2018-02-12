@@ -17,7 +17,6 @@ public class FirebaseContract {
     private static final String USERS_COLLECTION = "users";
     private static final String SHAUTS_COLLECTION = "shauts";
     private static final String CITIES_COLLECTION = "cities";
-    private static final String CHATROOMS_COLLECTION = "chatroom";
     private static final String MESSAGES_COLLECTION = "messages";
     private static final String USERS_FRIEND_REQUESTS_COLLECTION = "users_friend_requests";
 
@@ -49,13 +48,21 @@ public class FirebaseContract {
 
     }
 
+    public static class ShautsCollection {
+        public static final String NAME = SHAUTS_COLLECTION;
+
+        public static class Shauts {
+
+        }
+    }
+
     public static class UsersCollection {
         public static final String NAME = USERS_COLLECTION;
 
         public static class User {
             public static final String CITY_VARIABLE = "city";
             public static final String NAME = "user_object";
-            public static final String CHATROOMS_COLLECTION = "chatrooms";
+            public static final String CHATROOMS_COLLECTION = "chatroom";
             public static final String STRANGERS_FRIEND_REQUESTS_COLLECTION =
                     "strangers_friend_requests";
 
@@ -103,41 +110,5 @@ public class FirebaseContract {
                 }
             }
         }
-
-
-
-
-        public static class ShautsCollection {
-            public static final String NAME = SHAUTS_COLLECTION;
-
-            public static class Shauts {
-
-            }
-        }
-
-        public static class ChatroomsCollection {
-            public static final String NAME = CHATROOMS_COLLECTION;
-
-            public static class Chats {
-
-            }
-        }
-
-//    public static class UsersFriendRequestsNode {
-//        public static final String NAME = USERS_FRIEND_REQUESTS_COLLECTION;
-//
-//        public static class Request {
-//            public static final String NAME = "request_object";
-//
-//            //field names for user friend request object
-//            public static final String FIELD_REQUESTER_USER_KEY = "requesterUserKey";
-//            public static final String FIELD_REQUESTER_USER_NAME = "requesterUserName";
-//            public static final String FIELD_REQUESTER_IMAGE_URL = "requesterImageUrl";
-//            public static final String FIELD_CITY_KEY = "cityKey";
-//            public static final String FIELD_CITY_NAME = "cityName";
-//
-//
-//        }
-//    }
     }
 }

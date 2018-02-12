@@ -238,8 +238,8 @@ public class PageFragment extends Fragment {
         Query chatroomsQuery = db
                 .collection(FirebaseContract.UsersCollection.NAME)
                 .document(userObject.getUserKey())
-                .collection(FirebaseContract.UsersCollection.ChatroomsCollection.NAME);
-//                .orderBy(FIELD_TIMESTAMP, Query.Direction.DESCENDING)
+                .collection(FirebaseContract.UsersCollection.User.ChatroomsCollection.NAME)
+                .orderBy(FIELD_TIMESTAMP, Query.Direction.DESCENDING);
 //                .limit(PAGINATION_LIMIT);
         chatMetaDataList = new ArrayList<>();
         adapter = new ChatroomsAdapter(getContext(), chatMetaDataList,
