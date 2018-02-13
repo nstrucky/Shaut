@@ -1,6 +1,9 @@
 package com.ventoray.shaut.ui.fragment;
 
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
@@ -43,6 +46,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.ventoray.shaut.client_data.DataHelper.refreshFriendRequests;
+import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_CITY_KEY;
+import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_CITY_NAME;
+import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_POTENTIAL_FRIEND_KEY;
+import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_IMAGE_URL;
+import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_PROFILE_CONTENT;
+import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_USER_KEY;
+import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.CONTENT_URI;
+import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_USER_NAME;
 import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.ChatroomsCollection.ChatMetaData.FIELD_TIMESTAMP;
 import static com.ventoray.shaut.ui.MessageActivity.PARCEL_KEY_CHAT_META_DATA;
 
@@ -308,9 +320,13 @@ public class PageFragment extends Fragment {
                 }
                 adapter.notifyDataSetChanged();
                 emptyTextVisiblity();
+
+                if (friendRequests == null || friendRequests.size() < 0) return;
+                refreshFriendRequests(getContext(), friendRequests);
             }
         }
     };
+
 
 
     /**
@@ -342,6 +358,13 @@ public class PageFragment extends Fragment {
                 .collection(FirebaseContract.UsersCollection.User.StrangersRequestCollection.NAME)
                 .document(friendRequest.getRequesterUserKey())
                 .delete();
+
+        String[] args = new String[]{friendRequest.getRequesterUserKey()};
+
+        int deleted = getContext().getContentResolver()
+                .delete(CONTENT_URI, COLUMN_REQUESTER_USER_KEY, args);
+
+        Log.d(LOG_TAG, "Deleted " + deleted + " records");
     }
 
 
