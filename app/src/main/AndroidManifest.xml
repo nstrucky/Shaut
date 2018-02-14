@@ -22,16 +22,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".ui.MainActivity" />
-
         <activity android:name=".ui.ProfileEditorActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.MainActivity" />
         </activity>
-
-
         <activity android:name=".ui.MessageActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -42,14 +38,20 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="${placesApiKey}" />
 
-
         <provider
-            android:authorities="com.ventoray.shaut"
             android:name=".client_data.FriendRequestsContentProvider"
-            android:exported="false"
-            />
+            android:authorities="com.ventoray.shaut"
+            android:exported="true" />
 
+        <receiver android:name=".widget.StackWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/friend_request_widget_info" />
+        </receiver>
     </application>
-
 
 </manifest>

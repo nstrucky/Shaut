@@ -31,8 +31,8 @@ public class DataHelper {
     public static void refreshFriendRequests(Context context, List<FriendRequest> friendRequests) {
         ContentResolver contentResolver = context.getContentResolver();
 
-        int deleted = contentResolver.delete(CONTENT_URI, null, null);
-        Log.d(LOG_TAG, "Deleted " + deleted + " records");
+//        int deleted = contentResolver.delete(CONTENT_URI, null, null);
+//        Log.d(LOG_TAG, "Deleted " + deleted + " records");
 
         for (FriendRequest request : friendRequests) {
             String requesterName = request.getRequesterUserName();

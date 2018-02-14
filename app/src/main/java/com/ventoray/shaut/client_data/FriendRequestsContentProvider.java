@@ -26,6 +26,7 @@ public class FriendRequestsContentProvider extends ContentProvider {
     private FriendRequestsDbHelper friendRequestsDbHelper;
     public static final int URI_FRIEND_REQUEST_SINGLE = 1000;
     public static final int URI_FRIEND_REQUESTS_ALL = 1001;
+    private static final UriMatcher sUriMatcher = buildMatcher();
 
     public static UriMatcher buildMatcher() {
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -47,7 +48,7 @@ public class FriendRequestsContentProvider extends ContentProvider {
                         @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         Cursor cursor;
         final SQLiteDatabase database = friendRequestsDbHelper.getReadableDatabase();
-        int match = buildMatcher().match(uri);
+        int match = sUriMatcher.match(uri);
 
         switch (match) {
             case URI_FRIEND_REQUESTS_ALL:
@@ -75,7 +76,7 @@ public class FriendRequestsContentProvider extends ContentProvider {
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
         Uri returnedUri;
-        final SQLiteDatabase database = friendRequestsDbHelper.getReadableDatabase();
+        final SQLiteDatabase database = friendRequestsDbHelper.getWritableDatabase();
 
         long id = database.insert(TABLE_NAME, null, contentValues);
 
@@ -86,20 +87,22 @@ public class FriendRequestsContentProvider extends ContentProvider {
             throw new SQLException("Could not insert row into Uri: " + uri);
         }
 
+        getContext().getContentResolver().notifyChange(uri, null);
+
         return returnedUri;
     }
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         SQLiteDatabase database = friendRequestsDbHelper.getWritableDatabase();
-        int match = buildMatcher().match(uri);
+        int match = sUriMatcher.match(uri);
         int numRows = 0;
 
         switch (match) {
             case URI_FRIEND_REQUESTS_ALL:
                 numRows = database.delete(
                         TABLE_NAME,
-                        selection+"=?",
+                        selection,
                         selectionArgs
                 );
 

@@ -1,13 +1,18 @@
 package com.ventoray.shaut.util;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * Created by Nick on 2/6/2018.
@@ -60,6 +65,26 @@ public class FileHelper {
 
         return object;
     }
+
+
+    //TODO Add listener argument to return bitmap
+    public static Bitmap getBitmapFromURL(String resource) {
+        Bitmap bitmap = null;
+        try {
+            URL url = new URL(resource);
+            HttpURLConnection httpURLConnection =
+                    (HttpURLConnection) url.openConnection();
+            httpURLConnection.setDoInput(true);
+            httpURLConnection.connect();
+
+            InputStream inputStream = httpURLConnection.getInputStream();
+            bitmap = BitmapFactory.decodeStream(inputStream);
+        } catch (IOException e) {
+            Log.d(LOG_TAG, e.getLocalizedMessage());
+        }
+        return bitmap;
+    }
+
 
 
 }
