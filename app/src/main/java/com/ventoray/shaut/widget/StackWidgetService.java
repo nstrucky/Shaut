@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
+import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 import com.ventoray.shaut.R;
 
 import static com.ventoray.shaut.client_data.FriendRequestsContract.BASE_CONTENT_URI;
@@ -80,6 +82,12 @@ public class StackWidgetService extends RemoteViewsService {
             String requesterName =
                     cursor.getString(cursor.getColumnIndex(COLUMN_REQUESTER_USER_NAME));
 
+
+
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+            }
+
+
 //            Bitmap profileBitmap = FileHelper.getBitmapFromURL(imageUrl);
 
 //            if bitmap is null show a picture of a cute little guy with a bowtie
@@ -99,7 +107,7 @@ public class StackWidgetService extends RemoteViewsService {
 //
 
 //            } else {
-                views.setImageViewResource(R.id.imageView_profilePicture, R.drawable.spanky);
+//                views.setImageViewResource(R.id.imageView_profilePicture, R.drawable.spanky);
 //            }
 
             views.setTextViewText(R.id.textView_requestername, requesterName);
