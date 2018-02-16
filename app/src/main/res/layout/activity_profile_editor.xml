@@ -79,10 +79,11 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textView_profileText"
+        <EditText
+            android:id="@+id/editText_profileText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:maxWidth="@dimen/profileText_maxWidth"
             android:layout_marginBottom="@dimen/margin_children_vertical"
             android:layout_marginTop="@dimen/margin_children_vertical"

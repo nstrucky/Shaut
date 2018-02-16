@@ -14,12 +14,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,17 +36,20 @@ import java.io.ByteArrayOutputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
-import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
 import static com.ventoray.shaut.firebase.FirebaseStorageContract.PublicDirectory.PROFILE_PICS_DIRECTORY;
 
 public class ProfileEditorActivity extends AppCompatActivity {
-    @BindView(R.id.toolbar) Toolbar toolbar;
-    @BindView(R.id.textView_profileText) TextView profileTextView;
-    @BindView(R.id.button_editProfile) FloatingActionButton editProfileFab;
-    @BindView(R.id.imageView_profilePicture) ImageView profilePictureImageView;
-    @BindView(R.id.button_camera) ImageButton cameraButton;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.editText_profileText)
+    EditText profileSummaryEditText;
+    @BindView(R.id.button_editProfile)
+    FloatingActionButton editProfileFab;
+    @BindView(R.id.imageView_profilePicture)
+    ImageView profilePictureImageView;
+    @BindView(R.id.button_camera)
+    ImageButton cameraButton;
 
     static final int RC_IMAGE_CAPTURE = 1001;
 
@@ -56,11 +58,10 @@ public class ProfileEditorActivity extends AppCompatActivity {
     //storage
     private StorageReference storageReference;
     private boolean pictureTaken;
+    private boolean textEdited;
 
     private User userObject;
     private Bitmap newProfileBitmap;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +77,6 @@ public class ProfileEditorActivity extends AppCompatActivity {
         setUserData();
     }
 
-
     private void setUserData() {
         String profileText = userObject.getProfileSummary();
         String picUrl = userObject.getProfileImageUrl();
@@ -88,10 +88,9 @@ public class ProfileEditorActivity extends AppCompatActivity {
         }
 
         if (profileText != null) {
-            profileTextView.setText(profileText);
+            profileSummaryEditText.setText(profileText);
         }
     }
-
 
     private void setButtonListeners() {
         cameraButton.setOnClickListener(new View.OnClickListener() {
@@ -100,8 +99,15 @@ public class ProfileEditorActivity extends AppCompatActivity {
                 dispatchTakePictureIntent();
             }
         });
-    }
 
+        editProfileFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                profileSummaryEditText.setEnabled(true);
+                textEdited = true;
+            }
+        });
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -121,7 +127,6 @@ public class ProfileEditorActivity extends AppCompatActivity {
                 saveChanges();
                 break;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -131,7 +136,6 @@ public class ProfileEditorActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-
         actionBar.setTitle(R.string.edit_profile);
     }
 
@@ -156,10 +160,9 @@ public class ProfileEditorActivity extends AppCompatActivity {
         if (pictureTaken) {
             saveImageToFirebase();
         } else {
+            saveUserDataToFirebase();
             finish();
         }
-
-
     }
 
     private void saveImageToFirebase() {
@@ -194,15 +197,15 @@ public class ProfileEditorActivity extends AppCompatActivity {
                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
                 Log.d(LOG_TAG, "User Profile Pic: " + downloadUrl.toString());
                 userObject.setProfileImageUrl(downloadUrl.toString());
-                FileHelper.writeObjectToFile(ProfileEditorActivity.this,
-                        userObject, FileHelper.USER_OBJECT_FILE);
                 saveUserDataToFirebase();
             }
         });
     }
 
-
     private void saveUserDataToFirebase() {
+        userObject.setProfileSummary(profileSummaryEditText.getText().toString());
+        FileHelper.writeObjectToFile(ProfileEditorActivity.this,
+                userObject, FileHelper.USER_OBJECT_FILE);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db
                 .collection(FirebaseContract.UsersCollection.NAME)

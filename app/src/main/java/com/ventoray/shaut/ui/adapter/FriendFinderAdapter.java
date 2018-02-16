@@ -9,7 +9,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 import com.ventoray.shaut.R;
 import com.ventoray.shaut.model.FriendRequest;
@@ -89,7 +88,7 @@ public class FriendFinderAdapter extends RecyclerView.Adapter<FriendFinderAdapte
 
             profileImageView = itemView.findViewById(R.id.imageView_profilePicture);
             userNameTextView = itemView.findViewById(R.id.textView_userName);
-            userProfileTextView = itemView.findViewById(R.id.textView_profileText);
+            userProfileTextView = itemView.findViewById(R.id.editText_profileText);
             friendRequestButton = itemView.findViewById(R.id.imageButton_addFriend);
             friendRequestButton.setOnClickListener(this);
 
