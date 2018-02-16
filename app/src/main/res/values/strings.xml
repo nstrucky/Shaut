@@ -40,4 +40,7 @@
     <string name="hint_type_message">Type message here</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
+
+    <!--ProfileEditorActivity-->
+    <string name="saved">Saved!</string>
 </resources>

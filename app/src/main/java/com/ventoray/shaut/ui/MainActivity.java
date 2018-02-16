@@ -27,6 +27,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.squareup.picasso.Picasso;
 import com.ventoray.shaut.firebase.AuthHelper;
 import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.model.User;
@@ -194,10 +195,19 @@ public class MainActivity extends AppCompatActivity
         checkCityPref();
         NavigationView navigationView = findViewById(R.id.nav_view);
         View headerLayout = navigationView.getHeaderView(0);
+        ImageView imageView = headerLayout.findViewById(R.id.imageView_profilePicture);
         TextView userNameTextView = headerLayout.findViewById(R.id.textView_userName);
         TextView userEmailAddressTextView = headerLayout.findViewById(R.id.textView_emailAddress);
         userNameTextView.setText(userObject.getUserName());
         userEmailAddressTextView.setText(userObject.getUserEmailAddress());
+        String picUrl = userObject.getProfileImageUrl();
+
+        if (picUrl != null) {
+            Picasso
+                    .with(this)
+                    .load(picUrl)
+                    .into(imageView);
+        }
     }
 
     private void setUpNavDrawer() {

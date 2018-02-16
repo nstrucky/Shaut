@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 import com.ventoray.shaut.R;
 import com.ventoray.shaut.model.FriendRequest;
 
@@ -60,7 +61,7 @@ public class FriendReqeustAdapter extends RecyclerView.Adapter<FriendReqeustAdap
         }
 
         if (photoUrl != null) {
-            Glide.with(context)
+            Picasso.with(context)
                     .load(photoUrl)
                     .into(holder.profileImageView);
         }

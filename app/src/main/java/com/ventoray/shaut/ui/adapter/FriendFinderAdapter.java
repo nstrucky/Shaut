@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 import com.ventoray.shaut.R;
 import com.ventoray.shaut.model.FriendRequest;
 import com.ventoray.shaut.model.User;
@@ -56,10 +57,12 @@ public class FriendFinderAdapter extends RecyclerView.Adapter<FriendFinderAdapte
         String imageUrl = user.getProfileImageUrl();
 
         if (imageUrl != null) {
-            Glide
+            Picasso
                     .with(context)
                     .load(imageUrl)
                     .into(holder.profileImageView);
+        } else {
+            holder.profileImageView.setImageResource(R.drawable.spanky);
         }
 
         holder.userNameTextView.setText(userName);
