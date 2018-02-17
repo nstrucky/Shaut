@@ -16,6 +16,9 @@
         android:id="@+id/textview_empty_stack"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="center"
+        android:padding="@dimen/padding_messages"
+        android:background="@android:color/white"
         android:text="@string/no_requests"/>
 
 

@@ -45,10 +45,7 @@ public class AuthHelper {
     }
 
 
-    /**
-     * Signs the firebase authenticated user out of the application and TODO removes cached
-     * data on phone.
-     */
+
     public static void signOut(final AppCompatActivity appCompatActivity) {
         FirebaseAuth.getInstance().signOut();
 
@@ -57,9 +54,7 @@ public class AuthHelper {
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-//                        FirebaseAuth.getInstance().signOut();
                         Intent intent = new Intent(appCompatActivity, PreSignInActivity.class);
-//                        intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
                         appCompatActivity.startActivity(intent);
                         appCompatActivity.finish();
                     }

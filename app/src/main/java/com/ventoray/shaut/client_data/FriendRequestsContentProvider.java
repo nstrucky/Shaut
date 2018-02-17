@@ -100,6 +100,11 @@ public class FriendRequestsContentProvider extends ContentProvider {
 
         switch (match) {
             case URI_FRIEND_REQUESTS_ALL:
+
+                if (selectionArgs != null && selectionArgs.length > 0) {
+                    selection = selection + "=?";
+                }
+
                 numRows = database.delete(
                         TABLE_NAME,
                         selection,

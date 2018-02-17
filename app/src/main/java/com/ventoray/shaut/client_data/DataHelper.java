@@ -28,11 +28,16 @@ public class DataHelper {
     public static final String LOG_TAG = "DataHellper";
 
 
+    /**
+     *
+     * @param context
+     * @param friendRequests
+     */
     public static void refreshFriendRequests(Context context, List<FriendRequest> friendRequests) {
         ContentResolver contentResolver = context.getContentResolver();
 
-//        int deleted = contentResolver.delete(CONTENT_URI, null, null);
-//        Log.d(LOG_TAG, "Deleted " + deleted + " records");
+        int deleted = contentResolver.delete(CONTENT_URI, null, null);
+        Log.d(LOG_TAG, "Deleted " + deleted + " records");
 
         for (FriendRequest request : friendRequests) {
             String requesterName = request.getRequesterUserName();
@@ -72,7 +77,7 @@ public class DataHelper {
 
         if (!cursor.moveToFirst()) return;
 
-
+        Log.d(LOG_TAG, "There are " + cursor.getCount()+ " records in sqlite");
         for (int i = 1; i < cursor.getCount(); i++) {
             if (!cursor.moveToPosition(i)) break;
             String name = cursor.getString(cursor.getColumnIndex(COLUMN_REQUESTER_USER_NAME));

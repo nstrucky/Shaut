@@ -397,7 +397,7 @@ public class PageFragment extends Fragment {
     }
 
     /**
-     * userObject is reinitialized here in order to captur the new city key saved to file in the
+     * userObject is reinitialized here in order to capture the new city key saved to file in the
      * main activity
      */
     private void refreshFriendFinder() {

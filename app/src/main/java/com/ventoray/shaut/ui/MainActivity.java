@@ -28,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
+import com.ventoray.shaut.client_data.FriendRequestsContract;
 import com.ventoray.shaut.firebase.AuthHelper;
 import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.model.User;
@@ -261,14 +262,37 @@ public class MainActivity extends AppCompatActivity
                 intent = new Intent(this, ProfileEditorActivity.class);
                 startActivity(intent);
                 break;
-
+            /**
+             * Signs the firebase authenticated user out of the application and TODO removes cached
+             * data on phone.
+             */
             case R.id.nav_logout:
+                removeUserData();
                 AuthHelper.signOut(this);
+
                 break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+
+    private void removeUserData() {
+        //writes blank user to file... could just write method that removes the file
+        FileHelper.writeObjectToFile(this, new User(), FileHelper.USER_OBJECT_FILE);
+
+
+
+        int deleted = getContentResolver().delete(
+                FriendRequestsContract.FriendRequestEntry.CONTENT_URI,
+                null,
+                null
+        );
+
+        Log.d(LOG_TAG, "Deleted " + deleted + " records on sign out");
+
+
     }
 }

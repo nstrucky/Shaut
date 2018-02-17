@@ -42,6 +42,7 @@ public class Write {
         friendRequest.setRequesterImageUrl(userObject.getProfileImageUrl());
         friendRequest.setRequesterUserKey(userObject.getUserKey());
         friendRequest.setRequesterUserName(userObject.getUserName());
+        friendRequest.setRequesterProfileContent(userObject.getProfileSummary());
 
         db.collection(FirebaseContract.UsersCollection.NAME)
                 .document(potentialFriendKey)
