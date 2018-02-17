@@ -22,14 +22,8 @@ public class FriendRequestPullService extends JobService {
                 return null;
             }
 
-            /**
-             * Send out broadcast intent to appwidget
-             * @param o
-             */
             @Override
             protected void onPostExecute(Object o) {
-
-
                 jobFinished(jobParameters,false);
             }
         };

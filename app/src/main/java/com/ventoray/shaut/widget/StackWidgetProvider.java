@@ -1,5 +1,6 @@
 package com.ventoray.shaut.widget;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
@@ -23,11 +24,14 @@ public class StackWidgetProvider extends AppWidgetProvider {
         serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_stackview);
-//        views.setTextViewText(R.id.appwidget_text, widgetText);
         views.setRemoteAdapter(R.id.widget_stackview, serviceIntent);
-//        views.setRemoteAdapter(appWidgetId, R.id.widget_stackview, serviceIntent);
         views.setEmptyView(R.id.widget_stackview, R.id.textview_empty_stack);
 
+        //Button intents
+        Intent responseIntent = new Intent(context, RespondToRequestService.class);
+        PendingIntent responsePendingIntent =
+                PendingIntent.getService(context, 0, responseIntent, 0);
+        views.setPendingIntentTemplate(R.id.widget_stackview, responsePendingIntent);
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);

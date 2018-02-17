@@ -13,12 +13,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.ventoray.shaut.R;
 import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.model.FriendRequest;
 import com.ventoray.shaut.model.User;
 import com.ventoray.shaut.util.FileHelper;
-import com.ventoray.shaut.widget.StackWidgetProvider;
 
 import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_CITY_KEY;
 import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_CITY_NAME;
@@ -28,6 +26,7 @@ import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendReques
 import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_USER_KEY;
 import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_USER_NAME;
 import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.CONTENT_URI;
+import static com.ventoray.shaut.widget.Utils.notifyAppWidget;
 
 /**
  * Created by Nick on 2/17/2018.
@@ -105,17 +104,6 @@ public class DataTasks {
     }
 
 
-    private static void notifyAppWidget(Context context) {
-                int []ids = AppWidgetManager.getInstance(context)
-                        .getAppWidgetIds(new ComponentName(context,
-                                StackWidgetProvider.class));
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
 
-        for (int i = 0; i < ids.length; i++) {
-            int appWidgetId = ids[i];
-            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_stackview);
-        }
-
-    }
 
 }

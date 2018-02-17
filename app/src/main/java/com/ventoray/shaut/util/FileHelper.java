@@ -3,6 +3,7 @@ package com.ventoray.shaut.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.FileInputStream;
@@ -19,6 +20,10 @@ import java.net.URL;
  */
 
 public class FileHelper {
+
+    public interface OnBitmapRetrievedListener {
+        void onBitmapRetrieved(Bitmap bitmap);
+    }
 
     public static final String LOG_TAG = "FileHelper";
     public static final String USER_OBJECT_FILE =
@@ -67,23 +72,27 @@ public class FileHelper {
     }
 
 
-    //TODO Add listener argument to return bitmap
     public static Bitmap getBitmapFromURL(String resource) {
         Bitmap bitmap = null;
+        Log.d(LOG_TAG, "Bitmap URL: " + resource);
         try {
             URL url = new URL(resource);
             HttpURLConnection httpURLConnection =
                     (HttpURLConnection) url.openConnection();
             httpURLConnection.setDoInput(true);
             httpURLConnection.connect();
+            Log.d(LOG_TAG, httpURLConnection.getResponseMessage());
 
             InputStream inputStream = httpURLConnection.getInputStream();
             bitmap = BitmapFactory.decodeStream(inputStream);
         } catch (IOException e) {
-            Log.d(LOG_TAG, e.getLocalizedMessage());
+            if (e == null) return null;
+//            Log.d(LOG_TAG, e.getMessage());
         }
+
         return bitmap;
     }
+
 
 
 

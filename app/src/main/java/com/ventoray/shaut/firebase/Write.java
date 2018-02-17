@@ -1,11 +1,13 @@
 package com.ventoray.shaut.firebase;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
@@ -15,10 +17,14 @@ import com.ventoray.shaut.model.ChatMessage;
 import com.ventoray.shaut.model.ChatMetaData;
 import com.ventoray.shaut.model.FriendRequest;
 import com.ventoray.shaut.model.User;
+import com.ventoray.shaut.widget.Utils;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_USER_KEY;
+import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.CONTENT_URI;
 
 /**
  * Created by Nick on 2/5/2018.
@@ -51,12 +57,13 @@ public class Write {
                 .set(friendRequest).addOnSuccessListener(successListener);
     }
 
-    /**
+    /** deprecated --moved to firestore
      * Allows the user to write an object to any path given the node string args
      * @param object - object to be saved to database
      * @param listener - listener called when setValue completes
      * @param pathNodes - String args for each node of path
      */
+    @Deprecated
     public static void writeObject(Object object,
                                    @NonNull OnCompleteListener listener, String... pathNodes) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -68,7 +75,7 @@ public class Write {
     }
 
 
-    /**TODO - 2/7/2018 - When a user is added to a city, they should be removed from the old one
+    /**
      * This method will update the Users Object with the new city name and ID (filter type cities
      * from the autocomplete api).  The Cities node for that city will also be updated with a
      * key of the user's id with value equal to true.
@@ -78,6 +85,7 @@ public class Write {
      * @param userObject
      * @param listener
      */
+
     public static void updateUserCity(User userObject,
                                       String oldCityId,
                                       OnCompleteListener listener) {
@@ -107,7 +115,33 @@ public class Write {
         }
     }
 
+    /**
+     * Deletes any pending friend requests taking just the context and requester's user ID.
+     * This will trigger deletion from the sqlite database only once the success listener from
+     * firebase returns successful.
+     * @param context
+     * @param requesterId
+     */
+    public static void deleteFriendRequest(final Context context, final String requesterId) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db
+                .collection(FirebaseContract.UsersCollection.NAME)
+                .document(userId)
+                .collection(FirebaseContract.UsersCollection.User.StrangersRequestCollection.NAME)
+                .document(requesterId)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        int deleted = context.getContentResolver().delete(CONTENT_URI,
+                                COLUMN_REQUESTER_USER_KEY, new String[]{requesterId});
+                        Log.d(LOG_TAG, "Deleted " + deleted + " records");
 
+                        Utils.notifyAppWidget(context);
+                    }
+                });
+    }
 
     /**
      * This method updates the users and new friend's chatmetadata collections with the same
@@ -233,5 +267,8 @@ public class Write {
 
 
     }
+
+
+
 
 }
