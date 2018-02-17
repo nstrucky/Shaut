@@ -6,23 +6,20 @@ import com.ventoray.shaut.firebase.FirebaseContract;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_CITY_KEY;
+import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_DOWN_VOTE;
+import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_MESSAGE_TEXT;
+import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_MESSAGE_TIME;
+import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_PROFILE_IMAGE_URL;
+import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_UP_VOTE;
+import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_USER_KEY;
+import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_USER_NAME;
+
 /**
  * Created by Nick on 2/4/2018.
  */
 
 public class Shaut implements FirebaseContract.FirebaseMapObject {
-
-    /**
-     *  These are the key names for the variables to be stored in Firebase
-     */
-    public static final String USER_NAME = "userName";
-    public static final String USER_KEY = "userKey";
-    public static final String CITY_KEY = "cityKey";
-    public static final String PROFILE_IMAGE_URL = "profileImageUrl";
-    public static final String MESSAGE_TEXT = "messageText";
-    public static final String MESSAGE_TIME = "messageTime";
-    public static final String UP_VOTE = "upVote";
-    public static final String DOWN_VOTE = "downVote";
 
     private String userName;
     private String userKey;
@@ -35,9 +32,10 @@ public class Shaut implements FirebaseContract.FirebaseMapObject {
 
     public Shaut() {}
 
-    public Shaut(String userName, String userKey, String profileImageUrl, String messageText, long messageTime, int upVote, int downVote) {
+    public Shaut(String userName, String userKey, String cityKey, String profileImageUrl, String messageText, long messageTime, int upVote, int downVote) {
         this.userName = userName;
         this.userKey = userKey;
+        this.cityKey = cityKey;
         this.profileImageUrl = profileImageUrl;
         this.messageText = messageText;
         this.messageTime = messageTime;
@@ -117,14 +115,14 @@ public class Shaut implements FirebaseContract.FirebaseMapObject {
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.put(USER_NAME, userName);
-        result.put(USER_KEY, userKey);
-        result.put(CITY_KEY, cityKey);
-        result.put(PROFILE_IMAGE_URL, profileImageUrl);
-        result.put(MESSAGE_TEXT, messageText);
-        result.put(MESSAGE_TIME, messageTime);
-        result.put(UP_VOTE, upVote);
-        result.put(DOWN_VOTE, downVote);
+        result.put(FIELD_USER_NAME, userName);
+        result.put(FIELD_USER_KEY, userKey);
+        result.put(FIELD_CITY_KEY, cityKey);
+        result.put(FIELD_PROFILE_IMAGE_URL, profileImageUrl);
+        result.put(FIELD_MESSAGE_TEXT, messageText);
+        result.put(FIELD_MESSAGE_TIME, messageTime);
+        result.put(FIELD_UP_VOTE, upVote);
+        result.put(FIELD_DOWN_VOTE, downVote);
 
         return result;
     }

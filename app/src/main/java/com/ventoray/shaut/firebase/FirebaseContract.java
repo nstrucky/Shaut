@@ -51,7 +51,14 @@ public class FirebaseContract {
         public static final String NAME = SHAUTS_COLLECTION;
 
         public static class Shauts {
-
+            public static final String FIELD_USER_NAME = "userName";
+            public static final String FIELD_USER_KEY = "userKey";
+            public static final String FIELD_CITY_KEY = "cityKey";
+            public static final String FIELD_PROFILE_IMAGE_URL = "profileImageUrl";
+            public static final String FIELD_MESSAGE_TEXT = "messageText";
+            public static final String FIELD_MESSAGE_TIME = "messageTime";
+            public static final String FIELD_UP_VOTE = "upVote";
+            public static final String FIELD_DOWN_VOTE = "downVote";
         }
     }
 

@@ -1,14 +1,13 @@
 package com.ventoray.shaut.ui.fragment;
 
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,6 +16,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,17 +46,12 @@ import com.ventoray.shaut.util.FileHelper;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.ventoray.shaut.client_data.DataHelper.refreshFriendRequests;
-import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_CITY_KEY;
-import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_CITY_NAME;
-import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_POTENTIAL_FRIEND_KEY;
-import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_IMAGE_URL;
-import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_PROFILE_CONTENT;
 import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_USER_KEY;
 import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.CONTENT_URI;
-import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_USER_NAME;
 import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.ChatroomsCollection.ChatMetaData.FIELD_TIMESTAMP;
 import static com.ventoray.shaut.ui.MessageActivity.PARCEL_KEY_CHAT_META_DATA;
 
@@ -99,6 +95,8 @@ public class PageFragment extends Fragment {
 
     //shauts page
     private List<Shaut> shautsList;
+    private FloatingActionButton shautFab;
+    private EditText shautEditText;
 
     //all pages
     private TextView emptyTextView;
@@ -464,7 +462,8 @@ public class PageFragment extends Fragment {
      ***********************************************************************************************/
 
     private void initializeShautsPage(View view) {
-        view.findViewById(R.id.fab_newShaut).setVisibility(View.VISIBLE);
+        shautEditText = view.findViewById(R.id.editText_shaut);
+        setUpShautsFab(view);
     }
 
 
@@ -475,5 +474,100 @@ public class PageFragment extends Fragment {
         swipeRefreshLayout.setRefreshing(false);
 
     }
+
+    private void setUpShautsFab(View view) {
+        shautFab = view.findViewById(R.id.fab_newShaut);
+        shautFab.setVisibility(View.VISIBLE);
+        shautFab.setOnClickListener(createShautClickListener);
+    }
+
+    private void createShaut() {
+        showSoftKeyboard();
+        shautFab.setImageDrawable(getContext().getDrawable(R.drawable.ic_send_black_24px));
+        shautFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                shautOutToTheWorld();
+            }
+        });
+
+    }
+
+    public void showSoftKeyboard() {
+        shautEditText.setVisibility(View.VISIBLE);
+        if (shautEditText.requestFocus()) {
+            InputMethodManager imm = (InputMethodManager)
+                    getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(shautEditText, InputMethodManager.SHOW_IMPLICIT);
+
+        }
+    }
+
+    private void shautOutToTheWorld() {
+        String shautString = hideEditText();
+        if (shautString == null || shautString.isEmpty()) return;
+
+        long time = new Date().getTime();
+
+        Shaut shaut = new Shaut(
+               userObject.getUserName(),
+                userObject.getUserKey(),
+                userObject.getCityKey(),
+                userObject.getProfileImageUrl(),
+                shautString,
+                time,
+                0,
+                0
+
+        );
+
+        db.collection(FirebaseContract.ShautsCollection.NAME)
+                .document()
+                .set(shaut)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(getContext(),
+                        R.string.app_name, Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getContext(), R.string.something_wrong,
+                        Toast.LENGTH_SHORT).show();
+                Log.d(LOG_TAG, "Error: " + e.getLocalizedMessage());
+            }
+        });
+
+    }
+
+    private void hideSoftKeyboard() {
+        View view = getView();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    private String hideEditText() {
+        String shautString = shautEditText.getText().toString();
+        shautEditText.clearAnimation();
+        shautEditText.clearComposingText();
+        shautEditText.clearFocus();
+        shautEditText.setVisibility(View.GONE);
+        hideSoftKeyboard();
+        shautFab.setImageDrawable(getContext().getDrawable(R.drawable.ic_create_white_24px));
+        shautFab.setOnClickListener(createShautClickListener);
+        return shautString;
+    }
+
+    View.OnClickListener createShautClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            createShaut();
+        }
+    };
+
+
 
 }

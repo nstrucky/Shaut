@@ -41,7 +41,18 @@
             android:src="@drawable/ic_create_white_18px"
             android:visibility="invisible" />
 
+        <EditText
+            android:layout_gravity="bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:inputType="textMultiLine"
+            android:imeOptions="actionSend"
+            android:id="@+id/editText_shaut"/>
+
+
     </android.support.design.widget.CoordinatorLayout>
+
 
 
 </FrameLayout>
