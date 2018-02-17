@@ -327,8 +327,6 @@ public class PageFragment extends Fragment {
         }
     };
 
-
-
     /**
      * Handles the logic for responding to a stranger's friend request.
      * Deletes the request if declining and starts the chat room if accepting (also deletes request)
@@ -454,8 +452,4 @@ public class PageFragment extends Fragment {
             }
         });
     }
-
-
-
-
 }

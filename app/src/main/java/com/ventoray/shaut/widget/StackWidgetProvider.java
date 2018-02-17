@@ -14,7 +14,7 @@ import com.ventoray.shaut.R;
  */
 public class StackWidgetProvider extends AppWidgetProvider {
 
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
+    public static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 
         //set the StackWidgetService to act as the adapter for StackView

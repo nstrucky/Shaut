@@ -29,6 +29,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 import com.ventoray.shaut.client_data.FriendRequestsContract;
+import com.ventoray.shaut.client_data.JobUtils;
 import com.ventoray.shaut.firebase.AuthHelper;
 import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.model.User;
@@ -71,6 +72,7 @@ public class MainActivity extends AppCompatActivity
         setUpNavDrawer();
         setUpViewPager();
         AutoCompleteHelper.initializePlaceAutoComplete(this, fragmentPlaceListener);
+        JobUtils.scheduleFriendRequestPull(getApplicationContext());
 
     }
 
