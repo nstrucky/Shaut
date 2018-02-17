@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -19,13 +19,12 @@
         android:id="@+id/textView_userName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/margin_children_horizontal"
         android:layout_marginStart="@dimen/margin_children_horizontal"
         android:layout_marginTop="@dimen/margin_children_vertical"
-        tools:text="TextView"
-        app:layout_constraintEnd_toEndOf="@+id/include_profilePicture"
+        android:layout_marginBottom="@dimen/margin_children_vertical"
         app:layout_constraintStart_toStartOf="@+id/include_profilePicture"
-        app:layout_constraintTop_toBottomOf="@+id/include_profilePicture" />
+        app:layout_constraintTop_toBottomOf="@+id/include_profilePicture"
+        tools:text="TextView" />
 
     <TextView
         android:id="@+id/textView_shaut_content"
@@ -38,6 +37,30 @@
         app:layout_constraintTop_toTopOf="@+id/include_profilePicture" />
 
 
+    <TextView
+        android:id="@+id/textView_dislikes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="@dimen/margin_children_horizontal"
+        android:layout_marginTop="@dimen/margin_children_vertical"
+        app:layout_constraintBottom_toBottomOf="@+id/button_thumbsDown"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/button_thumbsDown"
+        tools:text="5" />
+
+    <TextView
+        android:id="@+id/textView_likes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_children_vertical"
+        android:layout_marginEnd="@dimen/margin_children_horizontal"
+        android:layout_marginTop="@dimen/margin_children_vertical"
+        app:layout_constraintBottom_toBottomOf="@+id/button_thumbsUp"
+        app:layout_constraintEnd_toStartOf="@+id/button_thumbsUp"
+        app:layout_constraintTop_toTopOf="@+id/button_thumbsUp"
+        tools:text="5" />
+
     <ImageButton
         android:id="@+id/button_thumbsDown"
         style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
@@ -47,7 +70,7 @@
         android:layout_marginEnd="@dimen/margin_children_horizontal"
         android:src="@drawable/ic_thumb_down_black_18px"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toStartOf="@+id/textView_dislikes" />
 
 
     <ImageButton
@@ -56,7 +79,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_children_vertical"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="@dimen/margin_children_horizontal"
         android:src="@drawable/ic_thumb_up_black_18px"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/button_thumbsDown" />

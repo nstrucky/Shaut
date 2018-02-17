@@ -34,6 +34,7 @@ import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.firebase.Write;
 import com.ventoray.shaut.model.ChatMetaData;
 import com.ventoray.shaut.model.FriendRequest;
+import com.ventoray.shaut.model.Shaut;
 import com.ventoray.shaut.model.User;
 import com.ventoray.shaut.ui.MessageActivity;
 import com.ventoray.shaut.ui.adapter.ChatroomsAdapter;
@@ -81,7 +82,7 @@ public class PageFragment extends Fragment {
     public static final String ARGS_KEY_PAGE_TYPE =
             "com.ventoray.shaut.ui.fragment.PageFragment.ARGS_KEY_PAGE_TYPE";
 
-    public static final int PAGINATION_LIMIT = 3;
+    public static final int PAGINATION_LIMIT = 5;
 
     private static final String LOG_TAG = "PageFragment";
 
@@ -95,6 +96,9 @@ public class PageFragment extends Fragment {
 
     //friend finder page
     private List<User> potentialFriends;
+
+    //shauts page
+    private List<Shaut> shautsList;
 
     //all pages
     private TextView emptyTextView;
@@ -174,7 +178,8 @@ public class PageFragment extends Fragment {
                         break;
 
                     case PAGE_TYPE_SHAUTS:
-                        swipeRefreshLayout.setRefreshing(false);
+                        addShautsToView();
+
                         break;
 
                     case PAGE_TYPE_FRIEND_REQUESTS:
@@ -202,7 +207,7 @@ public class PageFragment extends Fragment {
                 break;
 
             case PAGE_TYPE_SHAUTS:
-                view.findViewById(R.id.fab_newShaut).setVisibility(View.VISIBLE);
+                initializeShautsPage(view);
                 break;
 
             case PAGE_TYPE_FRIEND_REQUESTS:
@@ -452,4 +457,23 @@ public class PageFragment extends Fragment {
             }
         });
     }
+
+
+    /***********************************************************************************************
+     * Shauts Page methods
+     ***********************************************************************************************/
+
+    private void initializeShautsPage(View view) {
+        view.findViewById(R.id.fab_newShaut).setVisibility(View.VISIBLE);
+    }
+
+
+    private void addShautsToView() {
+        Query query = db.collection(FirebaseContract.UsersCollection.NAME);
+        String cityKey = userObject.getCityKey();
+
+        swipeRefreshLayout.setRefreshing(false);
+
+    }
+
 }
