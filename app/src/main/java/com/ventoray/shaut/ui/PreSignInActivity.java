@@ -86,8 +86,10 @@ public class PreSignInActivity extends AppCompatActivity {
                             DocumentSnapshot documentSnapshot = task.getResult();
                             if (documentSnapshot != null && documentSnapshot.exists()) {
                                 User user = documentSnapshot.toObject(User.class);
+                                Log.d(LOG_TAG, "User Key: " + user.getUserKey());
                                 FileHelper.writeObjectToFile(PreSignInActivity.this,
                                         user, FileHelper.USER_OBJECT_FILE);
+
                                 goToMainActivity();
                             } else {//document does not exist
                                 createNewUserNode();

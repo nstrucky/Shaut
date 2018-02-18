@@ -1,5 +1,8 @@
 package com.ventoray.shaut.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.firebase.database.Exclude;
 import com.ventoray.shaut.firebase.FirebaseContract;
 
@@ -20,13 +23,7 @@ import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.
  * Created by Nick on 2/4/2018.
  */
 
-public class User implements FirebaseContract.FirebaseMapObject, Serializable {
-
-    /**
-     *  These are the key names for the variables to be stored in Firebase
-     */
-
-
+public class User implements FirebaseContract.FirebaseMapObject, Serializable, Parcelable {
 
     private String userKey;
     private String userName;
@@ -133,4 +130,44 @@ public class User implements FirebaseContract.FirebaseMapObject, Serializable {
 
         return result;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.userKey);
+        dest.writeString(this.userName);
+        dest.writeString(this.userEmailAddress);
+        dest.writeString(this.cityKey);
+        dest.writeString(this.cityName);
+        dest.writeString(this.profileSummary);
+        dest.writeString(this.profileImageUrl);
+        dest.writeLong(this.movedToCityDate);
+    }
+
+    protected User(Parcel in) {
+        this.userKey = in.readString();
+        this.userName = in.readString();
+        this.userEmailAddress = in.readString();
+        this.cityKey = in.readString();
+        this.cityName = in.readString();
+        this.profileSummary = in.readString();
+        this.profileImageUrl = in.readString();
+        this.movedToCityDate = in.readLong();
+    }
+
+    public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel source) {
+            return new User(source);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
 }

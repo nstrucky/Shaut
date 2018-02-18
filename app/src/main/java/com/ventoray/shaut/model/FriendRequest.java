@@ -1,5 +1,8 @@
 package com.ventoray.shaut.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +18,7 @@ import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.
  * Created by Nick on 2/10/2018.
  */
 
-public class FriendRequest {
+public class FriendRequest implements Parcelable {
 
 
     private String requesterUserKey;
@@ -109,4 +112,42 @@ public class FriendRequest {
 
         return result;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.requesterUserKey);
+        dest.writeString(this.requesterUserName);
+        dest.writeString(this.requesterImageUrl);
+        dest.writeString(this.requesterProfileContent);
+        dest.writeString(this.potentialFriendKey);
+        dest.writeString(this.cityKey);
+        dest.writeString(this.cityName);
+    }
+
+    protected FriendRequest(Parcel in) {
+        this.requesterUserKey = in.readString();
+        this.requesterUserName = in.readString();
+        this.requesterImageUrl = in.readString();
+        this.requesterProfileContent = in.readString();
+        this.potentialFriendKey = in.readString();
+        this.cityKey = in.readString();
+        this.cityName = in.readString();
+    }
+
+    public static final Parcelable.Creator<FriendRequest> CREATOR = new Parcelable.Creator<FriendRequest>() {
+        @Override
+        public FriendRequest createFromParcel(Parcel source) {
+            return new FriendRequest(source);
+        }
+
+        @Override
+        public FriendRequest[] newArray(int size) {
+            return new FriendRequest[size];
+        }
+    };
 }

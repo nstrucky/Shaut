@@ -116,7 +116,6 @@ public class Shaut implements FirebaseContract.FirebaseMapObject, Parcelable {
      * @return
      */
     @Override
-    @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
         result.put(FIELD_USER_NAME, userName);

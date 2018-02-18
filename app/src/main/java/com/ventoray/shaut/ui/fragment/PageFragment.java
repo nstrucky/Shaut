@@ -85,6 +85,8 @@ public class PageFragment extends Fragment {
             "com.ventoray.shaut.ui.PageFragment.OUTSTATE_PAGE_TYPE";
     public static final String OUTSTATE_OBJECT_LIST =
             "com.ventoray.shaut.ui.PageFragment.OUTSTATE_OBJECT_LIST";
+    public static final String OUTSTATE_LAST_VISIBLE_OBJECT =
+            "com.ventoray.shaut.ui.PageFragment.OUTSTATE_LAST_VISIBLE_OBJECT";
 
     public static final int PAGINATION_LIMIT = 5;
 
@@ -100,12 +102,14 @@ public class PageFragment extends Fragment {
 
     //friend finder page
     private ArrayList<User> potentialFriends;
+    private User lastVisibleUser;
 
     //shauts page
     private ArrayList<Shaut> shautsList;
     private FloatingActionButton shautFab;
     private EditText shautEditText;
-    private DocumentSnapshot lastSnapshot;
+//    private DocumentSnapshot lastSnapshot;
+    private Shaut lastVisibleShaut;
 
     //all pages
     private TextView emptyTextView;
@@ -116,7 +120,7 @@ public class PageFragment extends Fragment {
     private RecyclerView recyclerView;
     private User userObject;
     private boolean onLast;
-    private DocumentSnapshot lastVisible;
+//    private DocumentSnapshot lastVisible;
 
     //savedInstanceState
     private int scrollPosition;
@@ -136,7 +140,12 @@ public class PageFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        shautsList = new ArrayList<>(); //TODO repeat for other pages
+
+        shautsList = new ArrayList<>();
+        chatMetaDataList = new ArrayList<>();
+        potentialFriends = new ArrayList<>();
+        friendRequests = new ArrayList<>();
+
         setPageType(savedInstanceState);
         userObject = (User) FileHelper.readObjectFromFile(getContext(), FileHelper.USER_OBJECT_FILE);
         db = FirebaseFirestore.getInstance();
@@ -146,22 +155,22 @@ public class PageFragment extends Fragment {
 
             if (pageType == PAGE_TYPE_SHAUTS) {
                 shautsList = savedInstanceState.getParcelableArrayList(OUTSTATE_OBJECT_LIST);
+                lastVisibleShaut = savedInstanceState.getParcelable(OUTSTATE_LAST_VISIBLE_OBJECT);
+            } else if (pageType == PAGE_TYPE_FRIEND_REQUESTS) {
+                friendRequests = savedInstanceState.getParcelableArrayList(OUTSTATE_OBJECT_LIST);
+            } else if (pageType == PAGE_TYPE_FRIENDFINDER) {
+                potentialFriends = savedInstanceState.getParcelableArrayList(OUTSTATE_OBJECT_LIST);
+                lastVisibleUser = savedInstanceState.getParcelable(OUTSTATE_LAST_VISIBLE_OBJECT);
+            } else if (pageType == PAGE_TYPE_MESSAGES) {
+                chatMetaDataList = savedInstanceState.getParcelableArrayList(OUTSTATE_OBJECT_LIST);
             }
+
             if (savedInstanceState.containsKey(OUTSTATE_SCROLL_POSITION)) {
                 scrollPosition = savedInstanceState.getInt(OUTSTATE_SCROLL_POSITION);
                 Log.d(LOG_TAG, "Scroll Position " + scrollPosition);
             }
-
-
-
-        } else {
-
         }
-
     }
-
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -184,9 +193,6 @@ public class PageFragment extends Fragment {
     }
 
 
-
-
-
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         int position = 0;
@@ -200,11 +206,23 @@ public class PageFragment extends Fragment {
 
         switch (pageType) {
             case PAGE_TYPE_FRIENDFINDER:
+                if (potentialFriends != null) {
+                    outState.putParcelableArrayList(OUTSTATE_OBJECT_LIST, potentialFriends);
+                }
+
+                if (lastVisibleUser != null) {
+                    outState.putParcelable(OUTSTATE_LAST_VISIBLE_OBJECT, lastVisibleUser);
+                }
+
                 break;
 
             case PAGE_TYPE_SHAUTS:
                 if (shautsList != null && !shautsList.isEmpty()) {
                     outState.putParcelableArrayList(OUTSTATE_OBJECT_LIST, shautsList);
+                }
+
+                if (lastVisibleShaut != null) {
+                    outState.putParcelable(OUTSTATE_LAST_VISIBLE_OBJECT, lastVisibleShaut);
                 }
                 break;
 
@@ -219,12 +237,6 @@ public class PageFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-    }
 
     private void setPageType(Bundle savedInstanceState) {
         Bundle args = getArguments();
@@ -333,8 +345,7 @@ public class PageFragment extends Fragment {
                 .document(userObject.getUserKey())
                 .collection(FirebaseContract.UsersCollection.User.ChatroomsCollection.NAME)
                 .orderBy(FIELD_TIMESTAMP, Query.Direction.DESCENDING);
-//                .limit(PAGINATION_LIMIT);
-        chatMetaDataList = new ArrayList<>();
+
         adapter = new ChatroomsAdapter(getContext(), chatMetaDataList,
                 new ChatroomsAdapter.OnChatRoomClickedListener() {
                     @Override
@@ -373,7 +384,7 @@ public class PageFragment extends Fragment {
          Query friendRequestQuery = db.collection(FirebaseContract.UsersCollection.NAME)
                 .document(userObject.getUserKey())
                 .collection(FirebaseContract.UsersCollection.User.StrangersRequestCollection.NAME);
-        friendRequests = new ArrayList<>();
+
         adapter = new FriendReqeustAdapter(getContext(), friendRequests,
                 new FriendReqeustAdapter.OnFriendRequestResponseListener() {
                     @Override
@@ -385,7 +396,6 @@ public class PageFragment extends Fragment {
         friendRequestReg =
                 friendRequestQuery.addSnapshotListener(friendRequestListener);
     }
-
 
     EventListener<QuerySnapshot> friendRequestListener = new EventListener<QuerySnapshot>() {
         @Override
@@ -449,9 +459,8 @@ public class PageFragment extends Fragment {
      **********************************************************************************************/
 
     private void initializeFriendFinderPage() {
-        lastSnapshot = null;
         Query query = db.collection(FirebaseContract.UsersCollection.NAME);
-        potentialFriends = new ArrayList<>();
+
         adapter = new FriendFinderAdapter(this.getContext(), potentialFriends,
                 new FriendFinderAdapter.OnFriendRequetedCallback() {
                     @Override
@@ -470,7 +479,16 @@ public class PageFragment extends Fragment {
             Toast.makeText(PageFragment.this.getContext(), "No City", Toast.LENGTH_SHORT).show();
             return;
         }
-        getPotentialFriends(query, cityKey, true);
+
+        //If there is no list from before (i.e. saved in onSaveInstanceState), then retrieve
+        // a new list
+        if (potentialFriends == null || potentialFriends.isEmpty() || potentialFriends.size() < 1) {
+            getPotentialFriends(query, cityKey, true);
+        } else {
+            recyclerView.scrollToPosition(scrollPosition);
+            emptyTextVisiblity();
+        }
+
     }
 
     /**
@@ -481,8 +499,11 @@ public class PageFragment extends Fragment {
         userObject = (User) FileHelper.readObjectFromFile(getContext(), FileHelper.USER_OBJECT_FILE);
         Query query = db.collection(FirebaseContract.UsersCollection.NAME);
         String cityKey = userObject.getCityKey();
-        getPotentialFriends(query, cityKey, false);
-
+        if (onLast) {
+            getPotentialFriends(query, cityKey, true);
+        } else {
+            getPotentialFriends(query, cityKey, false);
+        }
     }
 
     private void getPotentialFriends(Query query, String cityKey, boolean startFromNewest) {
@@ -490,8 +511,8 @@ public class PageFragment extends Fragment {
                 .orderBy(FirebaseContract.UsersCollection.User.FIELD_MOVED_TO_CITY_DATE,
                         Query.Direction.DESCENDING);
 
-        if (!onLast && lastVisible != null && !startFromNewest) {
-            query = query.startAt(lastVisible);
+        if (!onLast && lastVisibleUser != null && !startFromNewest) {
+            query = query.startAfter(lastVisibleUser.getMovedToCityDate());
         }
         query.limit(PAGINATION_LIMIT)
                 .get()
@@ -499,23 +520,28 @@ public class PageFragment extends Fragment {
                     @Override
                     public void onSuccess(QuerySnapshot documentSnapshots) {
 
-                        if (documentSnapshots.getDocumentChanges().size() < 2) {
+                        //If the number returned is less than the number of results to be returned,
+                        // then need to start over and set the last visible user to zero so it
+                        // doesn't try to start after them.
+                        if (documentSnapshots.getDocumentChanges().size() < PAGINATION_LIMIT) {
                             onLast = true;
+                            lastVisibleUser = null;
                         } else {
                             onLast = false;
                         }
 
-                        List<DocumentSnapshot> snapshots = documentSnapshots.getDocuments();
-                        if (snapshots != null && snapshots.size() > 0) {
-                            lastVisible = snapshots
-                                    .get(documentSnapshots.size() - 1);
-                        }
-
                         List<User> users = documentSnapshots.toObjects(User.class);
+
                         potentialFriends.clear();
                         for (User user : users) {
                             if (!user.getUserKey().equals(userObject.getUserKey())) {
                                 potentialFriends.add(user);
+                                if (lastVisibleUser == null) lastVisibleUser = user;
+                                //if the user's move date is older than the lastVisible user, set
+                                //user as lastVisible in our list
+                                if (lastVisibleUser.getMovedToCityDate() > user.getMovedToCityDate()) {
+                                    lastVisibleUser = user;
+                                }
                             }
                             Log.d(LOG_TAG, user.getUserEmailAddress());
                         }
@@ -545,8 +571,6 @@ public class PageFragment extends Fragment {
      */
     private void initializeShautsPage(View view) {
 
-
-
         adapter = new ShautsAdapter(getContext(), shautsList,
                 new ShautsAdapter.OnVoteButtonsClickedListener() {
             @Override
@@ -564,15 +588,15 @@ public class PageFragment extends Fragment {
         shautEditText = view.findViewById(R.id.editText_shaut);
         setUpShautsFab(view);
 
+
+        //If there is no list from before (i.e. saved in onSaveInstanceState), then retrieve
+        // a new list
         if (shautsList == null || shautsList.isEmpty() || shautsList.size() < 1) {
             addShautsToView();
         } else {
             recyclerView.scrollToPosition(scrollPosition);
             emptyTextVisiblity();
         }
-
-
-
     }
 
     /**
@@ -592,9 +616,11 @@ public class PageFragment extends Fragment {
 
         //if there is a last snapshot then start download there and add to the list, however
         // start from the most recent again if the shauts list is empty
-        if (lastSnapshot != null && !shautsList.isEmpty()) {
+        if (lastVisibleShaut != null && !shautsList.isEmpty()) {
             query = query
-                    .startAfter(lastSnapshot);
+                    .startAfter(lastVisibleShaut.getMessageTime());
+
+            Log.d(LOG_TAG, "Adding snapshot time to query: " + lastVisibleShaut.getMessageTime());
         }
 
         query
@@ -605,16 +631,22 @@ public class PageFragment extends Fragment {
                     public void onSuccess(QuerySnapshot documentSnapshots) {
                         if (documentSnapshots != null && documentSnapshots.size() > 0) {
                             Log.d(LOG_TAG, "Shauts: Snapshots not null");
-                            lastSnapshot =
-                                    documentSnapshots
-                                            .getDocuments()
-                                            .get(documentSnapshots.size() - 1);
-
                             shautsList.addAll(documentSnapshots.toObjects(Shaut.class));
+
+                            //Find the newest shaut
+                            for (Shaut aShaut : shautsList) {
+                                if (lastVisibleShaut == null) lastVisibleShaut = aShaut;
+                                if (aShaut.getMessageTime() < lastVisibleShaut.getMessageTime()) {
+                                    lastVisibleShaut = aShaut;
+                                }
+                            }
+
+                            Log.d(LOG_TAG, "Oldest Shaut: " + lastVisibleShaut.getMessageText());
+
                             adapter.notifyDataSetChanged();
                             swipeRefreshLayout.setRefreshing(false);
                         } else {
-                            Log.d(LOG_TAG, "Shauts: NO SNAPSHOTS");
+                            Log.d(LOG_TAG, "Shauts: NO SNAPSHOTS ");
                             swipeRefreshLayout.setRefreshing(false);
                         }
                         emptyTextVisiblity();
@@ -623,7 +655,7 @@ public class PageFragment extends Fragment {
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.d(LOG_TAG, "Shauts: NO SNAPSHOTS" + e.getMessage());
+                Log.d(LOG_TAG, "Shauts: NO SNAPSHOTS " + e.getCause().toString());
                 swipeRefreshLayout.setRefreshing(false);
                 emptyTextVisiblity();
             }
