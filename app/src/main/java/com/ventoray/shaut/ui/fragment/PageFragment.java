@@ -41,6 +41,7 @@ import com.ventoray.shaut.ui.MessageActivity;
 import com.ventoray.shaut.ui.adapter.ChatroomsAdapter;
 import com.ventoray.shaut.ui.adapter.FriendFinderAdapter;
 import com.ventoray.shaut.ui.adapter.FriendReqeustAdapter;
+import com.ventoray.shaut.ui.adapter.ShautsAdapter;
 import com.ventoray.shaut.util.FileHelper;
 
 import java.lang.annotation.Retention;
@@ -97,6 +98,7 @@ public class PageFragment extends Fragment {
     private List<Shaut> shautsList;
     private FloatingActionButton shautFab;
     private EditText shautEditText;
+    private DocumentSnapshot lastSnapshot;
 
     //all pages
     private TextView emptyTextView;
@@ -176,6 +178,7 @@ public class PageFragment extends Fragment {
                         break;
 
                     case PAGE_TYPE_SHAUTS:
+                        swipeRefreshLayout.canChildScrollUp();
                         addShautsToView();
 
                         break;
@@ -374,6 +377,7 @@ public class PageFragment extends Fragment {
      **********************************************************************************************/
 
     private void initializeFriendFinderPage() {
+        lastSnapshot = null;
         Query query = db.collection(FirebaseContract.UsersCollection.NAME);
         potentialFriends = new ArrayList<>();
         adapter = new FriendFinderAdapter(this.getContext(), potentialFriends,
@@ -461,18 +465,85 @@ public class PageFragment extends Fragment {
      * Shauts Page methods
      ***********************************************************************************************/
 
+    /**
+     * Initializes the shauts page by creating the shauts list, setting up fab, adapter
+     * and edittext.  Then it makes the first call to the data base for the most recent
+     * shauts.
+     * @param view
+     */
     private void initializeShautsPage(View view) {
+        shautsList = new ArrayList<>();
+        adapter = new ShautsAdapter(getContext(), shautsList,
+                new ShautsAdapter.OnVoteButtonsClickedListener() {
+            @Override
+            public void onLikeButtonClicked(Shaut shaut) {
+                Toast.makeText(getContext(), "TODO Like!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onDislikeButtonClicked(Shaut shaut) {
+                Toast.makeText(getContext(), "TODO Dislike!", Toast.LENGTH_SHORT).show();
+            }
+        });
+        recyclerView.setAdapter(adapter);
         shautEditText = view.findViewById(R.id.editText_shaut);
         setUpShautsFab(view);
+        addShautsToView();
     }
 
-
+    /**
+     * Queries the Shauts collection to download the most recent shauts.  If the lastSnapshot
+     * is not null, then start there to load older shauts.
+     */
     private void addShautsToView() {
-        Query query = db.collection(FirebaseContract.UsersCollection.NAME);
+        Query query = db.collection(FirebaseContract.ShautsCollection.NAME);
+        userObject =
+                (User) FileHelper.readObjectFromFile(getContext(), FileHelper.USER_OBJECT_FILE);
         String cityKey = userObject.getCityKey();
 
-        swipeRefreshLayout.setRefreshing(false);
+        query = query
+                .whereEqualTo(FirebaseContract.ShautsCollection.Shauts.FIELD_CITY_KEY, cityKey)
+                .orderBy(FirebaseContract.ShautsCollection.Shauts.FIELD_MESSAGE_TIME,
+                        Query.Direction.DESCENDING);
 
+        //if there is a last snapshot then start download there and add to the list, however
+        // start from the most recent again if the shauts list is empty
+        if (lastSnapshot != null && !shautsList.isEmpty()) {
+            query = query
+                    .startAfter(lastSnapshot);
+        }
+
+        query
+                .limit(PAGINATION_LIMIT)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot documentSnapshots) {
+                        if (documentSnapshots != null && documentSnapshots.size() > 0) {
+                            Log.d(LOG_TAG, "Shauts: Snapshots not null");
+                            lastSnapshot =
+                                    documentSnapshots
+                                            .getDocuments()
+                                            .get(documentSnapshots.size() - 1);
+
+                            shautsList.addAll(documentSnapshots.toObjects(Shaut.class));
+                            adapter.notifyDataSetChanged();
+                            swipeRefreshLayout.setRefreshing(false);
+                        } else {
+                            Log.d(LOG_TAG, "Shauts: NO SNAPSHOTS");
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                        emptyTextVisiblity();
+                    }
+
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(LOG_TAG, "Shauts: NO SNAPSHOTS" + e.getMessage());
+                swipeRefreshLayout.setRefreshing(false);
+                emptyTextVisiblity();
+            }
+        });
     }
 
     private void setUpShautsFab(View view) {
