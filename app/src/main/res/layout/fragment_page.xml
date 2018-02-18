@@ -18,18 +18,17 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent" />
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
         <TextView
+            android:id="@+id/textView_empty"
+            style="@style/EmptyView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/textView_empty"
             android:text="@string/nothing_here"
-            style="@style/EmptyView"
-            android:visibility="visible"
-            />
+            android:visibility="visible" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_newShaut"
@@ -41,18 +40,42 @@
             android:src="@drawable/ic_create_white_18px"
             android:visibility="invisible" />
 
-        <EditText
-            android:layout_gravity="bottom"
+
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="@android:color/white"
+            android:id="@+id/textInputLayout"
+            android:orientation="horizontal"
             android:visibility="gone"
-            android:inputType="textMultiLine"
-            android:imeOptions="actionSend"
-            android:id="@+id/editText_shaut"/>
+            tools:layout_editor_absoluteY="504dp">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/editText_shaut"
+                android:padding="@dimen/editText_padding"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_type_message"
+                 />
+
+
+        </android.support.design.widget.TextInputLayout>
+
+        <!---->
+        <!--<EditText-->
+        <!--android:layout_gravity="bottom"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:visibility="gone"-->
+        <!--android:inputType="textMultiLine"-->
+        <!--android:imeOptions="actionSend"-->
+        <!--android:padding="@dimen/editText_padding"-->
+        <!--android:background="@android:color/white"-->
+        <!--/>-->
 
 
     </android.support.design.widget.CoordinatorLayout>
-
 
 
 </FrameLayout>

@@ -25,6 +25,7 @@
 
     <!--Shauts Fragment-->
     <dimen name="floatingActionButton_size">56dp</dimen>
+    <dimen name="editText_padding">8dp</dimen>
 
 
     <!--ProfileEditorActivity-->

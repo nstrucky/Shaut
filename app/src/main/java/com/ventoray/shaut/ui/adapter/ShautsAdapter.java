@@ -101,6 +101,9 @@ public class ShautsAdapter extends RecyclerView.Adapter<ShautsAdapter.ShautsView
             dislikeButton = itemView.findViewById(R.id.button_thumbsDown);
             profileImageView = itemView.findViewById(R.id.imageView_profilePicture);
 
+            likeButton.setOnClickListener(this);
+            dislikeButton.setOnClickListener(this);
+
 
         }
 

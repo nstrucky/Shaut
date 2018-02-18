@@ -8,6 +8,8 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -87,6 +89,10 @@ public class PageFragment extends Fragment {
             "com.ventoray.shaut.ui.PageFragment.OUTSTATE_OBJECT_LIST";
     public static final String OUTSTATE_LAST_VISIBLE_OBJECT =
             "com.ventoray.shaut.ui.PageFragment.OUTSTATE_LAST_VISIBLE_OBJECT";
+    public static final String OUTSTATE_EDITTEXT_CONTENT =
+            "com.ventoray.shaut.ui.PageFragment.OUTSTATE_EDITTEXT_CONTENT";
+    public static final String OUTSTATE_SHOW_EDITTEXT =
+            "com.ventoray.shaut.ui.PageFragment.OUTSTATE_SHOW_EDITTEXT";
 
     public static final int PAGINATION_LIMIT = 5;
 
@@ -107,7 +113,11 @@ public class PageFragment extends Fragment {
     //shauts page
     private ArrayList<Shaut> shautsList;
     private FloatingActionButton shautFab;
-    private EditText shautEditText;
+    private TextInputEditText shautEditText;
+    private boolean showEditText;
+    private String editTextContent;
+    private TextInputLayout textInputLayout;
+
 //    private DocumentSnapshot lastSnapshot;
     private Shaut lastVisibleShaut;
 
@@ -156,6 +166,15 @@ public class PageFragment extends Fragment {
             if (pageType == PAGE_TYPE_SHAUTS) {
                 shautsList = savedInstanceState.getParcelableArrayList(OUTSTATE_OBJECT_LIST);
                 lastVisibleShaut = savedInstanceState.getParcelable(OUTSTATE_LAST_VISIBLE_OBJECT);
+                if (savedInstanceState.containsKey(OUTSTATE_SHOW_EDITTEXT)) {
+                    showEditText = savedInstanceState.getBoolean(OUTSTATE_SHOW_EDITTEXT);
+                }
+
+                if (savedInstanceState.containsKey(OUTSTATE_EDITTEXT_CONTENT)) {
+                    editTextContent = savedInstanceState.getString(OUTSTATE_EDITTEXT_CONTENT);
+                }
+
+
             } else if (pageType == PAGE_TYPE_FRIEND_REQUESTS) {
                 friendRequests = savedInstanceState.getParcelableArrayList(OUTSTATE_OBJECT_LIST);
             } else if (pageType == PAGE_TYPE_FRIENDFINDER) {
@@ -173,10 +192,22 @@ public class PageFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        if (showEditText) {
+            showSoftKeyboard();
+            if (editTextContent != null && !editTextContent.isEmpty()) {
+                shautEditText.setText(editTextContent);
+            }
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_page, container, false);
-
+        textInputLayout = (TextInputLayout) view.findViewById(R.id.textInputLayout);
         emptyTextView = (TextView) view.findViewById(R.id.textView_empty);
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
@@ -224,6 +255,17 @@ public class PageFragment extends Fragment {
                 if (lastVisibleShaut != null) {
                     outState.putParcelable(OUTSTATE_LAST_VISIBLE_OBJECT, lastVisibleShaut);
                 }
+
+
+                if (shautEditText.getVisibility() == View.VISIBLE) {
+                    showEditText = true;
+                    editTextContent = shautEditText.getText().toString();
+                    outState.putString(OUTSTATE_EDITTEXT_CONTENT, editTextContent);
+                    outState.putBoolean(OUTSTATE_SHOW_EDITTEXT, showEditText);
+                }
+
+
+
                 break;
 
             case PAGE_TYPE_FRIEND_REQUESTS:
@@ -681,12 +723,13 @@ public class PageFragment extends Fragment {
     }
 
     public void showSoftKeyboard() {
-        shautEditText.setVisibility(View.VISIBLE);
+        textInputLayout.setVisibility(View.VISIBLE);
+        shautEditText.setFocusableInTouchMode(true);
+
         if (shautEditText.requestFocus()) {
             InputMethodManager imm = (InputMethodManager)
                     getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(shautEditText, InputMethodManager.SHOW_IMPLICIT);
-
         }
     }
 
@@ -741,7 +784,7 @@ public class PageFragment extends Fragment {
         shautEditText.clearAnimation();
         shautEditText.clearComposingText();
         shautEditText.clearFocus();
-        shautEditText.setVisibility(View.GONE);
+        textInputLayout.setVisibility(View.GONE);
         hideSoftKeyboard();
         shautFab.setImageDrawable(getContext().getDrawable(R.drawable.ic_create_white_24px));
         shautFab.setOnClickListener(createShautClickListener);
