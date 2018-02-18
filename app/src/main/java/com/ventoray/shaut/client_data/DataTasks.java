@@ -56,10 +56,12 @@ public class DataTasks {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         User userObject =
                 (User) FileHelper.readObjectFromFile(context, FileHelper.USER_OBJECT_FILE);
-        if (userObject == null) {
+        if (userObject == null || userObject.getUserKey() == null) {
             Log.d(LOG_TAG, "No user object!");
             return;
         }
+
+
         Query friendRequestQuery = db.collection(FirebaseContract.UsersCollection.NAME)
                 .document(userObject.getUserKey())
                 .collection(FirebaseContract.UsersCollection.User.StrangersRequestCollection.NAME);
@@ -102,8 +104,4 @@ public class DataTasks {
         context.getContentResolver()
                 .insert(CONTENT_URI, cv);
     }
-
-
-
-
 }

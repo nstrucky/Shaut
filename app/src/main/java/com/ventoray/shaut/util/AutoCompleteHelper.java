@@ -132,6 +132,12 @@ public class AutoCompleteHelper {
     }
 
 
+    /**
+     * May be used in future versions of the app
+     * @param context
+     * @param placeListener
+     * @throws SecurityException
+     */
     public static void getCurrentPlace(Context context, final CurrentPlaceListener placeListener) throws SecurityException {
         PlaceDetectionClient placeDetectionClient = Places.getPlaceDetectionClient(context, null);
         Task<PlaceLikelihoodBufferResponse> placeResult = placeDetectionClient.getCurrentPlace(null);

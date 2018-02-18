@@ -28,6 +28,8 @@ public class FileHelper {
     public static final String LOG_TAG = "FileHelper";
     public static final String USER_OBJECT_FILE =
             "com.ventoray.shaut.util.FileHelper.USER_OBJECT_FILE";
+    public static final String PAGE_OBJECT_LIST =
+            "com.ventoray.shaut.util.FileHelper.PAGE_OBJECT_LIST";
 
 
     public static void writeObjectToFile(Context context, Object o, String fileName) {

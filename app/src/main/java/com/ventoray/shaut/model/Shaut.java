@@ -1,8 +1,12 @@
 package com.ventoray.shaut.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.firebase.database.Exclude;
 import com.ventoray.shaut.firebase.FirebaseContract;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +23,7 @@ import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shau
  * Created by Nick on 2/4/2018.
  */
 
-public class Shaut implements FirebaseContract.FirebaseMapObject {
+public class Shaut implements FirebaseContract.FirebaseMapObject, Parcelable {
 
     private String userName;
     private String userKey;
@@ -127,4 +131,43 @@ public class Shaut implements FirebaseContract.FirebaseMapObject {
         return result;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.userName);
+        dest.writeString(this.userKey);
+        dest.writeString(this.cityKey);
+        dest.writeString(this.profileImageUrl);
+        dest.writeString(this.messageText);
+        dest.writeLong(this.messageTime);
+        dest.writeInt(this.upVote);
+        dest.writeInt(this.downVote);
+    }
+
+    protected Shaut(Parcel in) {
+        this.userName = in.readString();
+        this.userKey = in.readString();
+        this.cityKey = in.readString();
+        this.profileImageUrl = in.readString();
+        this.messageText = in.readString();
+        this.messageTime = in.readLong();
+        this.upVote = in.readInt();
+        this.downVote = in.readInt();
+    }
+
+    public static final Parcelable.Creator<Shaut> CREATOR = new Parcelable.Creator<Shaut>() {
+        @Override
+        public Shaut createFromParcel(Parcel source) {
+            return new Shaut(source);
+        }
+
+        @Override
+        public Shaut[] newArray(int size) {
+            return new Shaut[size];
+        }
+    };
 }

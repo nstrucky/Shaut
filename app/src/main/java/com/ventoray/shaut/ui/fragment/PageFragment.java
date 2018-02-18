@@ -79,6 +79,13 @@ public class PageFragment extends Fragment {
     public static final String ARGS_KEY_PAGE_TYPE =
             "com.ventoray.shaut.ui.fragment.PageFragment.ARGS_KEY_PAGE_TYPE";
 
+    public static final String OUTSTATE_SCROLL_POSITION =
+            "com.ventoray.shaut.ui.PageFragment.OUTSTATE_SCROLL_POSITION";
+    public static final String OUTSTATE_PAGE_TYPE =
+            "com.ventoray.shaut.ui.PageFragment.OUTSTATE_PAGE_TYPE";
+    public static final String OUTSTATE_OBJECT_LIST =
+            "com.ventoray.shaut.ui.PageFragment.OUTSTATE_OBJECT_LIST";
+
     public static final int PAGINATION_LIMIT = 5;
 
     private static final String LOG_TAG = "PageFragment";
@@ -92,10 +99,10 @@ public class PageFragment extends Fragment {
     private ListenerRegistration friendRequestReg;
 
     //friend finder page
-    private List<User> potentialFriends;
+    private ArrayList<User> potentialFriends;
 
     //shauts page
-    private List<Shaut> shautsList;
+    private ArrayList<Shaut> shautsList;
     private FloatingActionButton shautFab;
     private EditText shautEditText;
     private DocumentSnapshot lastSnapshot;
@@ -110,6 +117,9 @@ public class PageFragment extends Fragment {
     private User userObject;
     private boolean onLast;
     private DocumentSnapshot lastVisible;
+
+    //savedInstanceState
+    private int scrollPosition;
 
     public PageFragment() {
         // Required empty public constructor
@@ -126,10 +136,32 @@ public class PageFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setPageType();
+        shautsList = new ArrayList<>(); //TODO repeat for other pages
+        setPageType(savedInstanceState);
         userObject = (User) FileHelper.readObjectFromFile(getContext(), FileHelper.USER_OBJECT_FILE);
         db = FirebaseFirestore.getInstance();
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(OUTSTATE_OBJECT_LIST)) {
+            Log.d(LOG_TAG, "We have the List!!!!!");
+
+            if (pageType == PAGE_TYPE_SHAUTS) {
+                shautsList = savedInstanceState.getParcelableArrayList(OUTSTATE_OBJECT_LIST);
+            }
+            if (savedInstanceState.containsKey(OUTSTATE_SCROLL_POSITION)) {
+                scrollPosition = savedInstanceState.getInt(OUTSTATE_SCROLL_POSITION);
+                Log.d(LOG_TAG, "Scroll Position " + scrollPosition);
+            }
+
+
+
+        } else {
+
+        }
+
     }
+
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -151,17 +183,57 @@ public class PageFragment extends Fragment {
         return view;
     }
 
+
+
+
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        int position = 0;
+        if (recyclerView != null) {
+            position = recyclerView.computeVerticalScrollOffset();
+            Log.d(LOG_TAG, "SAVING SCROLL POS: " + position);
+        }
+
+        outState.putInt(OUTSTATE_SCROLL_POSITION, position);
+        outState.putInt(OUTSTATE_PAGE_TYPE, pageType);
+
+        switch (pageType) {
+            case PAGE_TYPE_FRIENDFINDER:
+                break;
+
+            case PAGE_TYPE_SHAUTS:
+                if (shautsList != null && !shautsList.isEmpty()) {
+                    outState.putParcelableArrayList(OUTSTATE_OBJECT_LIST, shautsList);
+                }
+                break;
+
+            case PAGE_TYPE_FRIEND_REQUESTS:
+                break;
+
+            case PAGE_TYPE_MESSAGES:
+                break;
+
+            default:
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+
     @Override
     public void onStart() {
         super.onStart();
 
     }
 
-    private void setPageType() {
+    private void setPageType(Bundle savedInstanceState) {
         Bundle args = getArguments();
-        if (args != null && args.containsKey(ARGS_KEY_PAGE_TYPE)) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(OUTSTATE_PAGE_TYPE)) {
+            pageType = savedInstanceState.getInt(OUTSTATE_PAGE_TYPE);
+        } else if (args != null && args.containsKey(ARGS_KEY_PAGE_TYPE)) {
             pageType = args.getInt(ARGS_KEY_PAGE_TYPE);
         }
+        Log.d(LOG_TAG, "PAGE TYPE " + pageType);
     }
 
     private void initializeSwipeRefreshLayout(View view) {
@@ -472,23 +544,35 @@ public class PageFragment extends Fragment {
      * @param view
      */
     private void initializeShautsPage(View view) {
-        shautsList = new ArrayList<>();
+
+
+
         adapter = new ShautsAdapter(getContext(), shautsList,
                 new ShautsAdapter.OnVoteButtonsClickedListener() {
             @Override
             public void onLikeButtonClicked(Shaut shaut) {
-                Toast.makeText(getContext(), "TODO Like!", Toast.LENGTH_SHORT).show();
+                Log.d(LOG_TAG, "Liked: " + shaut.getMessageText());
             }
 
             @Override
             public void onDislikeButtonClicked(Shaut shaut) {
-                Toast.makeText(getContext(), "TODO Dislike!", Toast.LENGTH_SHORT).show();
+                Log.d(LOG_TAG, "Disliked: " + shaut.getMessageText());
             }
         });
         recyclerView.setAdapter(adapter);
+
         shautEditText = view.findViewById(R.id.editText_shaut);
         setUpShautsFab(view);
-        addShautsToView();
+
+        if (shautsList == null || shautsList.isEmpty() || shautsList.size() < 1) {
+            addShautsToView();
+        } else {
+            recyclerView.scrollToPosition(scrollPosition);
+            emptyTextVisiblity();
+        }
+
+
+
     }
 
     /**
@@ -638,6 +722,10 @@ public class PageFragment extends Fragment {
             createShaut();
         }
     };
+
+
+
+
 
 
 
