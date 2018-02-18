@@ -12,8 +12,11 @@ import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -155,6 +158,7 @@ public class PageFragment extends Fragment {
         chatMetaDataList = new ArrayList<>();
         potentialFriends = new ArrayList<>();
         friendRequests = new ArrayList<>();
+        showEditText = false;
 
         setPageType(savedInstanceState);
         userObject = (User) FileHelper.readObjectFromFile(getContext(), FileHelper.USER_OBJECT_FILE);
@@ -167,7 +171,7 @@ public class PageFragment extends Fragment {
                 shautsList = savedInstanceState.getParcelableArrayList(OUTSTATE_OBJECT_LIST);
                 lastVisibleShaut = savedInstanceState.getParcelable(OUTSTATE_LAST_VISIBLE_OBJECT);
                 if (savedInstanceState.containsKey(OUTSTATE_SHOW_EDITTEXT)) {
-                    showEditText = savedInstanceState.getBoolean(OUTSTATE_SHOW_EDITTEXT);
+                    showEditText = savedInstanceState.getBoolean(OUTSTATE_SHOW_EDITTEXT, false);
                 }
 
                 if (savedInstanceState.containsKey(OUTSTATE_EDITTEXT_CONTENT)) {
@@ -211,6 +215,9 @@ public class PageFragment extends Fragment {
         emptyTextView = (TextView) view.findViewById(R.id.textView_empty);
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                linearLayoutManager.getOrientation());
+        recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setLayoutManager(linearLayoutManager);
         initializeSwipeRefreshLayout(view);
 
@@ -257,11 +264,10 @@ public class PageFragment extends Fragment {
                 }
 
 
-                if (shautEditText.getVisibility() == View.VISIBLE) {
-                    showEditText = true;
+                if (textInputLayout.getVisibility() == View.VISIBLE) {
                     editTextContent = shautEditText.getText().toString();
                     outState.putString(OUTSTATE_EDITTEXT_CONTENT, editTextContent);
-                    outState.putBoolean(OUTSTATE_SHOW_EDITTEXT, showEditText);
+                    outState.putBoolean(OUTSTATE_SHOW_EDITTEXT, true);
                 }
 
 
@@ -797,10 +803,6 @@ public class PageFragment extends Fragment {
             createShaut();
         }
     };
-
-
-
-
 
 
 

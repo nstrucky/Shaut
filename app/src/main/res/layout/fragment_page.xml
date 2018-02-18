@@ -56,23 +56,12 @@
                 android:padding="@dimen/editText_padding"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:maxLength="100"
                 android:hint="@string/hint_type_message"
                  />
 
 
         </android.support.design.widget.TextInputLayout>
-
-        <!---->
-        <!--<EditText-->
-        <!--android:layout_gravity="bottom"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:visibility="gone"-->
-        <!--android:inputType="textMultiLine"-->
-        <!--android:imeOptions="actionSend"-->
-        <!--android:padding="@dimen/editText_padding"-->
-        <!--android:background="@android:color/white"-->
-        <!--/>-->
 
 
     </android.support.design.widget.CoordinatorLayout>
