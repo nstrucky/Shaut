@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -32,6 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
 import com.ventoray.shaut.R;
 import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.firebase.Write;
@@ -55,6 +57,8 @@ import java.util.List;
 import static com.ventoray.shaut.client_data.DataHelper.refreshFriendRequests;
 import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_USER_KEY;
 import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.CONTENT_URI;
+import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_DOWN_VOTE;
+import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_UP_VOTE;
 import static com.ventoray.shaut.firebase.FirebaseContract.UsersCollection.User.ChatroomsCollection.ChatMetaData.FIELD_TIMESTAMP;
 import static com.ventoray.shaut.ui.MessageActivity.PARCEL_KEY_CHAT_META_DATA;
 
@@ -118,7 +122,7 @@ public class PageFragment extends Fragment {
     private String editTextContent;
     private TextInputLayout textInputLayout;
 
-//    private DocumentSnapshot lastSnapshot;
+    //    private DocumentSnapshot lastSnapshot;
     private Shaut lastVisibleShaut;
 
     //all pages
@@ -425,7 +429,7 @@ public class PageFragment extends Fragment {
      * Friend request page methods
      **********************************************************************************************/
     private void initializeFriendRequestsPage() {
-         Query friendRequestQuery = db.collection(FirebaseContract.UsersCollection.NAME)
+        Query friendRequestQuery = db.collection(FirebaseContract.UsersCollection.NAME)
                 .document(userObject.getUserKey())
                 .collection(FirebaseContract.UsersCollection.User.StrangersRequestCollection.NAME);
 
@@ -462,6 +466,7 @@ public class PageFragment extends Fragment {
     /**
      * Handles the logic for responding to a stranger's friend request.
      * Deletes the request if declining and starts the chat room if accepting (also deletes request)
+     *
      * @param friendRequest
      * @param accepted
      */
@@ -480,6 +485,7 @@ public class PageFragment extends Fragment {
 
     /**
      * Removes the friend request from users strangers request collection
+     *
      * @param friendRequest
      */
     private void deleteFriendRequest(FriendRequest friendRequest) {
@@ -607,26 +613,30 @@ public class PageFragment extends Fragment {
      * Shauts Page methods
      ***********************************************************************************************/
 
+
     /**
      * Initializes the shauts page by creating the shauts list, setting up fab, adapter
      * and edittext.  Then it makes the first call to the data base for the most recent
      * shauts.
+     *
      * @param view
      */
     private void initializeShautsPage(View view) {
 
         adapter = new ShautsAdapter(getContext(), shautsList,
                 new ShautsAdapter.OnVoteButtonsClickedListener() {
-            @Override
-            public void onLikeButtonClicked(Shaut shaut) {
-                Log.d(LOG_TAG, "Liked: " + shaut.getMessageText());
-            }
+                    @Override
+                    public void onLikeButtonClicked(Shaut shaut) {
+                        voteButtonClicked(shaut, FIELD_UP_VOTE);
+                        Log.d(LOG_TAG, "Liked: " + shaut.getMessageText());
+                    }
 
-            @Override
-            public void onDislikeButtonClicked(Shaut shaut) {
-                Log.d(LOG_TAG, "Disliked: " + shaut.getMessageText());
-            }
-        });
+                    @Override
+                    public void onDislikeButtonClicked(Shaut shaut) {
+                        voteButtonClicked(shaut, FIELD_DOWN_VOTE);
+                        Log.d(LOG_TAG, "Disliked: " + shaut.getMessageText());
+                    }
+                });
         recyclerView.setAdapter(adapter);
 
         shautEditText = view.findViewById(R.id.editText_shaut);
@@ -641,6 +651,44 @@ public class PageFragment extends Fragment {
             recyclerView.scrollToPosition(scrollPosition);
             emptyTextVisiblity();
         }
+    }
+
+    /**
+     * Runs the transaction which increments the likes and dislikes...right now there is no
+     * built in way to keep someone from voting an unlimited number of times...needs to be included
+     * in further iterations of this app.
+     *
+     * @param shaut
+     * @param fieldName
+     */
+    private void voteButtonClicked(Shaut shaut, final String fieldName) {
+        final DocumentReference shautRef = db.collection(FirebaseContract.ShautsCollection.NAME)
+                .document(shaut.getShautId());
+
+        db.runTransaction(new Transaction.Function<Void>() {
+
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot snapshot = transaction.get(shautRef);
+                long newLikes = snapshot.getLong(fieldName) + 1;
+                transaction.update(shautRef, fieldName, newLikes);
+
+                //Success
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(LOG_TAG, "Transaction success!");
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(LOG_TAG, "Transaction failure.", e);
+                    }
+                });
     }
 
     /**
@@ -741,28 +789,38 @@ public class PageFragment extends Fragment {
 
         long time = new Date().getTime();
 
-        Shaut shaut = new Shaut(
-               userObject.getUserName(),
+        final Shaut shaut = new Shaut(
+                userObject.getUserName(),
                 userObject.getUserKey(),
                 userObject.getCityKey(),
                 userObject.getProfileImageUrl(),
                 shautString,
                 time,
                 0,
-                0
+                0,
+                null
 
         );
 
-        db.collection(FirebaseContract.ShautsCollection.NAME)
-                .document()
+        DocumentReference shautRef = db.collection(FirebaseContract.ShautsCollection.NAME)
+                .document();
+
+        String shautId = shautRef.getId();
+        shaut.setShautId(shautId);
+
+        shautRef
                 .set(shaut)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Toast.makeText(getContext(),
-                        R.string.app_name, Toast.LENGTH_SHORT).show();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+                        shautsList.add(0, shaut);
+                        adapter.notifyDataSetChanged();
+                        recyclerView.scrollToPosition(0);
+                        Toast.makeText(getContext(),
+                                R.string.app_name, Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getContext(), R.string.something_wrong,
@@ -799,7 +857,6 @@ public class PageFragment extends Fragment {
             createShaut();
         }
     };
-
 
 
 }

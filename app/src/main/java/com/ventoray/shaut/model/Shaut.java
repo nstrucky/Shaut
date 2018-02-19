@@ -15,6 +15,7 @@ import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shau
 import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_MESSAGE_TEXT;
 import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_MESSAGE_TIME;
 import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_PROFILE_IMAGE_URL;
+import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_SHAUT_ID;
 import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_UP_VOTE;
 import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_USER_KEY;
 import static com.ventoray.shaut.firebase.FirebaseContract.ShautsCollection.Shauts.FIELD_USER_NAME;
@@ -33,10 +34,12 @@ public class Shaut implements FirebaseContract.FirebaseMapObject, Parcelable {
     private long messageTime;
     private int upVote;
     private int downVote;
+    private String shautId;
 
     public Shaut() {}
 
-    public Shaut(String userName, String userKey, String cityKey, String profileImageUrl, String messageText, long messageTime, int upVote, int downVote) {
+    public Shaut(String userName, String userKey, String cityKey, String profileImageUrl, String messageText, long messageTime, int upVote, int downVote,
+                 String shautId) {
         this.userName = userName;
         this.userKey = userKey;
         this.cityKey = cityKey;
@@ -45,6 +48,15 @@ public class Shaut implements FirebaseContract.FirebaseMapObject, Parcelable {
         this.messageTime = messageTime;
         this.upVote = upVote;
         this.downVote = downVote;
+        this.shautId = shautId;
+    }
+
+    public String getShautId() {
+        return shautId;
+    }
+
+    public void setShautId(String shautId) {
+        this.shautId = shautId;
     }
 
     public String getProfileImageUrl() {
@@ -126,6 +138,7 @@ public class Shaut implements FirebaseContract.FirebaseMapObject, Parcelable {
         result.put(FIELD_MESSAGE_TIME, messageTime);
         result.put(FIELD_UP_VOTE, upVote);
         result.put(FIELD_DOWN_VOTE, downVote);
+        result.put(FIELD_SHAUT_ID, shautId);
 
         return result;
     }
@@ -145,6 +158,7 @@ public class Shaut implements FirebaseContract.FirebaseMapObject, Parcelable {
         dest.writeLong(this.messageTime);
         dest.writeInt(this.upVote);
         dest.writeInt(this.downVote);
+        dest.writeString(this.shautId);
     }
 
     protected Shaut(Parcel in) {
@@ -156,9 +170,10 @@ public class Shaut implements FirebaseContract.FirebaseMapObject, Parcelable {
         this.messageTime = in.readLong();
         this.upVote = in.readInt();
         this.downVote = in.readInt();
+        this.shautId = in.readString();
     }
 
-    public static final Parcelable.Creator<Shaut> CREATOR = new Parcelable.Creator<Shaut>() {
+    public static final Creator<Shaut> CREATOR = new Creator<Shaut>() {
         @Override
         public Shaut createFromParcel(Parcel source) {
             return new Shaut(source);

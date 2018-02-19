@@ -59,6 +59,7 @@ public class FirebaseContract {
             public static final String FIELD_MESSAGE_TIME = "messageTime";
             public static final String FIELD_UP_VOTE = "upVote";
             public static final String FIELD_DOWN_VOTE = "downVote";
+            public static final String FIELD_SHAUT_ID = "shautId";
         }
     }
 
