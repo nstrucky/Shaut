@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
@@ -19,6 +20,11 @@ import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendReques
 import static com.ventoray.shaut.client_data.FriendRequestsContract.PATH_FRIEND_REQUESTS;
 
 public class StackWidgetService extends RemoteViewsService {
+
+
+    public interface OnBitmapRetrievedListener {
+        void onBitmapRetrieved(Bitmap bitmap);
+    }
 
     public static final String LOG_TAG = "StackWidgetService";
 
@@ -135,6 +141,8 @@ class RemoteStackViewFactory implements RemoteViewsService.RemoteViewsFactory {
     public boolean hasStableIds() {
         return true;
     }
+
+
 }
 
 

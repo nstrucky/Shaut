@@ -38,7 +38,6 @@ public class PreSignInActivity extends BaseActivity {
         setContentView(R.layout.activity_pre_sign_in);
         db = FirebaseFirestore.getInstance();
 
-
     }
 
 
@@ -59,10 +58,7 @@ public class PreSignInActivity extends BaseActivity {
         } else if (!onActivityResultCalled && deviceIsConnected(this)) {//this will be the case only if user already signed in
             String uid = user.getUid();
             Log.d(LOG_TAG, "USER NOT NULL : " + uid);
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra(USER_SIGNED_IN_ALREADY_KEY, true);
-            startActivity(intent);
-            finish();
+            goToMainActivity(true);
         }
 
     }
