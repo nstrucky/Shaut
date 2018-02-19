@@ -18,6 +18,17 @@
     <!--content descriptions-->
     <string name="profile_picture">Profile picture</string>
     <string name="logo">Company Logo</string>
+    <string name="username">Username</string>
+    <string name="shaut_content">Shaut message content</string>
+    <string name="dislike_button">Dislike button</string>
+    <string name="like_button">Like button</string>
+    <string name="like_number">Number of likes</string>
+    <string name="dislike_number">Number of dislikes</string>
+    <string name="send_button">Send button</string>
+    <string name="new_shaut">New Shaut button</string>
+    <string name="add_friend_button">Add friend button</string>
+    <string name="decline_request_button">Decline request buton</string>
+    <string name="accept_request_button">Accept request buton</string>
 
     <!--Warning messages-->
     <string name="no_city_selected">No city selected!</string>

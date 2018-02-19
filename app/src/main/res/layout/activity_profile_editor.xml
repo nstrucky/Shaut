@@ -22,88 +22,89 @@
 
     </android.support.design.widget.AppBarLayout>
 
-        <LinearLayout
-            android:id="@+id/linearLayout2"
-            android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/margin_children_horizontal"
+        android:layout_marginStart="@dimen/margin_children_vertical"
+        android:layout_marginTop="@dimen/margin_top_sign_in"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <FrameLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_children_horizontal"
-            android:layout_marginStart="@dimen/margin_children_vertical"
-            android:layout_marginTop="@dimen/margin_top_sign_in"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_gravity="center"
+            android:layout_weight=".5">
 
-            <FrameLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+            <android.support.v7.widget.CardView
+                android:id="@+id/cardView"
+                android:layout_width="@dimen/profile_picture_dim_large"
+                android:layout_height="@dimen/profile_picture_dim_large"
                 android:layout_gravity="center"
-                android:layout_weight=".5">
+                android:innerRadius="0dp"
+                android:thicknessRatio="1.9"
+                app:cardCornerRadius="@dimen/profile_picture_cornerRadius_large"
+                tools:layout_editor_absoluteX="16dp"
+                tools:layout_editor_absoluteY="72dp">
 
-                <android.support.v7.widget.CardView
-                    android:id="@+id/cardView"
+                <ImageView
+                    android:id="@+id/imageView_profilePicture"
                     android:layout_width="@dimen/profile_picture_dim_large"
-                    android:layout_height="@dimen/profile_picture_dim_large"
-                    android:layout_gravity="center"
-                    android:innerRadius="0dp"
-                    android:thicknessRatio="1.9"
-                    app:cardCornerRadius="@dimen/profile_picture_cornerRadius_large"
-                    tools:layout_editor_absoluteX="16dp"
-                    tools:layout_editor_absoluteY="72dp">
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/profile_picture"
+                    android:paddingTop="@dimen/nav_header_vertical_spacing"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/spanky"
+                    tools:layout_editor_absoluteX="144dp"
+                    tools:layout_editor_absoluteY="134dp" />
 
-                    <ImageView
-                        android:id="@+id/imageView_profilePicture"
-                        android:layout_width="@dimen/profile_picture_dim_large"
-                        android:layout_height="match_parent"
-                        android:paddingTop="@dimen/nav_header_vertical_spacing"
-                        android:scaleType="centerCrop"
-                        app:srcCompat="@drawable/spanky"
-                        tools:layout_editor_absoluteX="144dp"
-                        tools:layout_editor_absoluteY="134dp" />
+            </android.support.v7.widget.CardView>
 
-                </android.support.v7.widget.CardView>
+        </FrameLayout>
 
-            </FrameLayout>
-
-            <ImageButton
-                android:id="@+id/button_camera"
-                style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight=".5"
-                android:src="@drawable/ic_camera_alt_white_24px"
-                android:tint="@color/colorAccent"
-                tools:layout_editor_absoluteX="239dp"
-                tools:layout_editor_absoluteY="113dp" />
-
-        </LinearLayout>
-
-        <EditText
-            android:id="@+id/editText_profileText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:enabled="false"
-            android:maxWidth="@dimen/profileText_maxWidth"
-            android:layout_marginBottom="@dimen/margin_children_vertical"
-            android:layout_marginTop="@dimen/margin_children_vertical"
-            android:layout_marginStart="@dimen/margin_children_horizontal"
-            android:layout_marginEnd="@dimen/margin_children_horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
-            tools:text="A whole bunch of words that no one is ever going to see so don't worry." />
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/button_editProfile"
+        <ImageButton
+            android:id="@+id/button_camera"
             style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/fab_margin"
-            android:src="@drawable/ic_create_white_24px"
-            app:fabSize="normal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight=".5"
+            android:src="@drawable/ic_camera_alt_white_24px"
+            android:tint="@color/colorAccent"
+            tools:layout_editor_absoluteX="239dp"
+            tools:layout_editor_absoluteY="113dp" />
+
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/editText_profileText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_children_vertical"
+        android:layout_marginEnd="@dimen/margin_children_horizontal"
+        android:layout_marginStart="@dimen/margin_children_horizontal"
+        android:layout_marginTop="@dimen/margin_children_vertical"
+        android:enabled="false"
+        android:maxWidth="@dimen/profileText_maxWidth"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
+        tools:text="A whole bunch of words that no one is ever going to see so don't worry." />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/button_editProfile"
+        style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_create_white_24px"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

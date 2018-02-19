@@ -24,9 +24,9 @@
 
         <TextView
             android:id="@+id/textView_message_timestamp"
-            android:textSize="@dimen/time_stamp_font_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="@dimen/time_stamp_font_size"
             tools:text="ten o'clock" />
 
 

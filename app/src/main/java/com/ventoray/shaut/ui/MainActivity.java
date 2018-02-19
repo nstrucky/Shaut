@@ -109,8 +109,6 @@ public class MainActivity extends BaseActivity
         } else {
             getUserObjectFromFirestore();
         }
-
-
     }
 
     private void getUserObjectFromFirestore() {
@@ -137,7 +135,6 @@ public class MainActivity extends BaseActivity
                 }
             }
         });
-
     }
 
     @Override
@@ -194,7 +191,6 @@ public class MainActivity extends BaseActivity
                     }
                 }).show();
     }
-
 
     PlaceSelectionListener fragmentPlaceListener = new PlaceSelectionListener() {
         @Override

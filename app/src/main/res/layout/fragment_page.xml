@@ -36,29 +36,29 @@
             android:layout_height="@dimen/floatingActionButton_size"
             android:layout_gravity="bottom|end"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:contentDescription="@string/new_shaut"
             android:src="@drawable/ic_create_white_18px"
             android:visibility="invisible" />
 
 
         <android.support.design.widget.TextInputLayout
+            android:id="@+id/textInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:background="@android:color/white"
-            android:id="@+id/textInputLayout"
             android:orientation="horizontal"
             android:visibility="gone"
             tools:layout_editor_absoluteY="504dp">
 
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/editText_shaut"
-                android:padding="@dimen/editText_padding"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:maxLength="100"
                 android:hint="@string/hint_type_message"
-                 />
+                android:maxLength="100"
+                android:padding="@dimen/editText_padding" />
 
 
         </android.support.design.widget.TextInputLayout>

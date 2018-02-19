@@ -2,9 +2,9 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container_app_bar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/container_app_bar"
     tools:context="com.ventoray.shaut.ui.MainActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -28,24 +28,22 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/rando_background"
                 app:layout_collapseMode="parallax"
-                app:layout_collapseParallaxMultiplier=".5"
-                />
+                app:layout_collapseParallaxMultiplier=".5" />
 
-                <android.support.v7.widget.Toolbar
-                    android:id="@+id/toolbar"
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/actionbar_height"
+                app:layout_collapseMode="pin"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+                <fragment
+                    android:id="@+id/place_autocomplete_fragment"
+                    android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/actionbar_height"
-                    app:layout_collapseMode="pin"
-                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                    >
-                    <fragment
-                        android:id="@+id/place_autocomplete_fragment"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-                        />
+                    android:layout_height="wrap_content" />
 
-                </android.support.v7.widget.Toolbar>
+            </android.support.v7.widget.Toolbar>
 
         </android.support.design.widget.CollapsingToolbarLayout>
 
@@ -53,10 +51,10 @@
             android:id="@+id/tablayout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/tablayout_height"
-            app:tabIndicatorColor="@android:color/white"
-            app:tabMode="fixed"
+            android:layout_gravity="bottom"
             app:tabGravity="fill"
-            android:layout_gravity="bottom"/>
+            app:tabIndicatorColor="@android:color/white"
+            app:tabMode="fixed" />
 
     </android.support.design.widget.AppBarLayout>
 

@@ -10,8 +10,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:paddingLeft="@dimen/first_letter_padding"
-        android:paddingRight="@dimen/first_letter_padding"
+        android:paddingStart="@dimen/first_letter_padding"
+        android:paddingEnd="@dimen/first_letter_padding"
         android:text="@string/default_first_letter"
         android:textSize="32sp" />
 

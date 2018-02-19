@@ -12,6 +12,7 @@
         android:layout_width="@dimen/profile_picture_dim"
         android:layout_height="@dimen/profile_picture_dim"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
+        android:contentDescription="@string/profile_picture"
         android:scaleType="centerCrop"
         app:srcCompat="@drawable/spanky" />
 
