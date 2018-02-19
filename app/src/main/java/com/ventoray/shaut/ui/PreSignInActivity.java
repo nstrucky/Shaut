@@ -2,7 +2,6 @@ package com.ventoray.shaut.ui;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -14,13 +13,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.ventoray.shaut.BaseActivity;
 import com.ventoray.shaut.R;
 import com.ventoray.shaut.firebase.AuthHelper;
 import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.model.User;
-import com.ventoray.shaut.util.FileHelper;
+import com.ventoray.shaut.util.FileManager;
 
-public class PreSignInActivity extends AppCompatActivity {
+import static com.ventoray.shaut.util.NetworkUtil.deviceIsConnected;
+
+public class PreSignInActivity extends BaseActivity {
 
     private static final int RC_SIGN_IN = 1001;
     public static final String LOG_TAG = "PreSignInActivity";
@@ -36,6 +38,7 @@ public class PreSignInActivity extends AppCompatActivity {
         setContentView(R.layout.activity_pre_sign_in);
         db = FirebaseFirestore.getInstance();
 
+
     }
 
 
@@ -49,11 +52,11 @@ public class PreSignInActivity extends AppCompatActivity {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        if (user == null) {
+        if (user == null && deviceIsConnected(this)) {
             Log.d(LOG_TAG, "USER DEFINITELYE NULL");
             AuthHelper.signIn(this, RC_SIGN_IN);
 
-        } else if (!onActivityResultCalled) {//this will be the case only if user already signed in
+        } else if (!onActivityResultCalled && deviceIsConnected(this)) {//this will be the case only if user already signed in
             String uid = user.getUid();
             Log.d(LOG_TAG, "USER NOT NULL : " + uid);
             Intent intent = new Intent(this, MainActivity.class);
@@ -87,10 +90,10 @@ public class PreSignInActivity extends AppCompatActivity {
                             if (documentSnapshot != null && documentSnapshot.exists()) {
                                 User user = documentSnapshot.toObject(User.class);
                                 Log.d(LOG_TAG, "User Key: " + user.getUserKey());
-                                FileHelper.writeObjectToFile(PreSignInActivity.this,
-                                        user, FileHelper.USER_OBJECT_FILE);
+                                FileManager.writeObjectToFile(PreSignInActivity.this,
+                                        user, FileManager.USER_OBJECT_FILE);
 
-                                goToMainActivity();
+                                goToMainActivity(false);
                             } else {//document does not exist
                                 createNewUserNode();
                             }
@@ -110,7 +113,7 @@ public class PreSignInActivity extends AppCompatActivity {
      * This method creates a new user profile by get the display name, email address, and user ID
      * from the given Auth method.  It also sets a default profile summary of "Hello World!".
      *
-     * A User object is then also cached in a user file, name specified in the FileHelper class.
+     * A User object is then also cached in a user file, name specified in the FileManager class.
      */
     private void createNewUserNode() {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -127,7 +130,7 @@ public class PreSignInActivity extends AppCompatActivity {
 
 
 
-        FileHelper.writeObjectToFile(this, newUser, FileHelper.USER_OBJECT_FILE);
+        FileManager.writeObjectToFile(this, newUser, FileManager.USER_OBJECT_FILE);
 
         db.collection(FirebaseContract.UsersCollection.NAME)
                 .document(newUser.getUserKey())
@@ -135,7 +138,7 @@ public class PreSignInActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    goToMainActivity();
+                    goToMainActivity(false);
                 } else { //did not write new user to firestore
                     Toast.makeText(PreSignInActivity.this,
                             R.string.something_wrong,
@@ -147,8 +150,9 @@ public class PreSignInActivity extends AppCompatActivity {
         });
     }
 
-    private void goToMainActivity() {
+    private void goToMainActivity(boolean signedInAlready) {
         Intent intent = new Intent(PreSignInActivity.this, MainActivity.class);
+        intent.putExtra(USER_SIGNED_IN_ALREADY_KEY, signedInAlready);
         startActivity(intent);
         finish();
     }

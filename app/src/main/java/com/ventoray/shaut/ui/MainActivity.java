@@ -1,15 +1,19 @@
 package com.ventoray.shaut.ui;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -18,6 +22,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
@@ -28,6 +33,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
+import com.ventoray.shaut.BaseActivity;
+import com.ventoray.shaut.Manifest;
 import com.ventoray.shaut.client_data.FriendRequestsContract;
 import com.ventoray.shaut.client_data.JobUtils;
 import com.ventoray.shaut.firebase.AuthHelper;
@@ -37,7 +44,7 @@ import com.ventoray.shaut.ui.util.MainActivityPagerAdapter;
 import com.ventoray.shaut.R;
 import com.ventoray.shaut.ui.util.FragmentPageTransformer;
 import com.ventoray.shaut.util.AutoCompleteHelper;
-import com.ventoray.shaut.util.FileHelper;
+import com.ventoray.shaut.util.FileManager;
 
 
 import java.util.Date;
@@ -45,29 +52,37 @@ import java.util.Date;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.ventoray.shaut.util.FileHelper.USER_OBJECT_FILE;
+import static com.ventoray.shaut.ui.PreSignInActivity.USER_SIGNED_IN_ALREADY_KEY;
+import static com.ventoray.shaut.util.FileManager.USER_OBJECT_FILE;
+import static com.ventoray.shaut.util.FileManager.deleteBitmapFile;
+import static com.ventoray.shaut.util.FileManager.writeBitmapToFile;
 import static com.ventoray.shaut.util.PreferenceHelper.PREF_SELECTED_CITY_ID;
 import static com.ventoray.shaut.util.PreferenceHelper.savePreference;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final int RC_PLACE_AUTOCOMPLETE = 1001;
+    public static final int RC_HANDLE_WRITE_EXTERNAL_PERM = 2001;
 
     public static final String LOG_TAG = "MainActivity";
 
     private User userObject;
     private FirebaseFirestore db;
 
-    @BindView(R.id.viewPager_main) ViewPager viewPager;
-    @BindView(R.id.tablayout) TabLayout tabLayout;
-    @BindView(R.id.imageView_city) ImageView cityImageView;
+    @BindView(R.id.viewPager_main)
+    ViewPager viewPager;
+    @BindView(R.id.tablayout)
+    TabLayout tabLayout;
+    @BindView(R.id.imageView_city)
+    ImageView cityImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        checkSelfPermissions();
         getUserObject();
         setUpNavDrawer();
         setUpViewPager();
@@ -78,14 +93,24 @@ public class MainActivity extends AppCompatActivity
 
     private void getUserObject() {
         db = FirebaseFirestore.getInstance();
-        Object object = FileHelper.readObjectFromFile(this, USER_OBJECT_FILE);
-        if (object == null) {
-            getUserObjectFromFirestore();
+        Intent intent = getIntent();
+        boolean alreadySignedIn =
+                intent.getBooleanExtra(USER_SIGNED_IN_ALREADY_KEY, true);
 
+        if (alreadySignedIn) {
+            Object object = FileManager.readObjectFromFile(this, USER_OBJECT_FILE);
+            if (object == null) {
+                getUserObjectFromFirestore();
+
+            } else {
+                userObject = (User) object;
+                setUserData(false);
+            }
         } else {
-            userObject = (User) object;
-            setUserData();
+            getUserObjectFromFirestore();
         }
+
+
     }
 
     private void getUserObjectFromFirestore() {
@@ -99,10 +124,10 @@ public class MainActivity extends AppCompatActivity
                     DocumentSnapshot documentSnapshot = task.getResult();
                     if (documentSnapshot != null && documentSnapshot.exists()) {
                         userObject = documentSnapshot.toObject(User.class);
-                        if (userObject != null){
-                            FileHelper.writeObjectToFile(MainActivity.this,
-                                    userObject, FileHelper.USER_OBJECT_FILE);
-                            setUserData();
+                        if (userObject != null) {
+                            FileManager.writeObjectToFile(MainActivity.this,
+                                    userObject, FileManager.USER_OBJECT_FILE);
+                            setUserData(true);
                         }
                     } else {//document does not exist
 
@@ -140,9 +165,21 @@ public class MainActivity extends AppCompatActivity
             makeMoveSnackbar();
             return;
         }
-        AutoCompleteHelper.getPlacePhoto(this, cityId, cityImageView);
+        setCityImageFromFile();
     }
 
+
+    private void setCityImageFromFile() {
+        Bitmap cityBitmap =
+                FileManager.readBitmapFromFile(this, FileManager.CITY_PHOTO_FILE);
+
+        if (cityBitmap != null) {
+            Glide.with(this)
+                    .asBitmap()
+                    .load(cityBitmap)
+                    .into(cityImageView);
+        }
+    }
 
     private void makeMoveSnackbar() {
         Snackbar.make(findViewById(R.id.container_app_bar),
@@ -179,22 +216,35 @@ public class MainActivity extends AppCompatActivity
         String cityName = place.getName().toString();
         long movedToCityDate = new Date().getTime();
         AutoCompleteHelper.getPlacePhoto(MainActivity.this,
-                cityId, cityImageView);
+                cityId, new AutoCompleteHelper.OnPhotoRetrievedListener() {
+                    @Override
+                    public void onPhotoRetrieved(Bitmap bitmap) {
+                        FileManager.writeBitmapToFile(
+                                MainActivity.this, bitmap, FileManager.CITY_PHOTO_FILE);
+
+                        Glide.with(MainActivity.this)
+                                .asBitmap()
+                                .load(bitmap)
+                                .into(cityImageView);
+                    }
+                });
+
+
         savePreference(MainActivity.this, PREF_SELECTED_CITY_ID, cityId);
         userObject.setCityKey(cityId);
         userObject.setCityName(cityName);
         userObject.setMovedToCityDate(movedToCityDate);
 
-        FileHelper.writeObjectToFile(this, userObject, USER_OBJECT_FILE);
+        FileManager.writeObjectToFile(this, userObject, USER_OBJECT_FILE);
 
-//        Write.updateUserCity(userObject, oldCityId, null);
+
         db.collection(FirebaseContract.UsersCollection.NAME)
                 .document(userObject.getUserKey())
                 .set(userObject.toMap());
 
     }
 
-    private void setUserData() {
+    private void setUserData(boolean pullCityImageFromWeb) {
         checkCityPref();
         NavigationView navigationView = findViewById(R.id.nav_view);
         View headerLayout = navigationView.getHeaderView(0);
@@ -205,11 +255,23 @@ public class MainActivity extends AppCompatActivity
         userEmailAddressTextView.setText(userObject.getUserEmailAddress());
         String picUrl = userObject.getProfileImageUrl();
 
-        if (picUrl != null) {
-            Picasso
-                    .with(this)
-                    .load(picUrl)
-                    .into(imageView);
+        if (pullCityImageFromWeb) {
+            AutoCompleteHelper.getPlacePhoto(this, userObject.getCityKey(),
+                    new AutoCompleteHelper.OnPhotoRetrievedListener() {
+                        @Override
+                        public void onPhotoRetrieved(Bitmap bitmap) {
+                            writeBitmapToFile(MainActivity.this, bitmap,
+                                    FileManager.CITY_PHOTO_FILE);
+
+                            Glide.with(MainActivity.this)
+                                    .asBitmap()
+                                    .load(bitmap)
+                                    .into(cityImageView);
+
+                        }
+                    });
+        } else {
+            setCityImageFromFile();
         }
     }
 
@@ -234,12 +296,12 @@ public class MainActivity extends AppCompatActivity
         viewPager.setAdapter(
                 new MainActivityPagerAdapter(getSupportFragmentManager(), this));
 
-            tabLayout.getTabAt(0).setIcon(R.drawable.ic_search_white_24px);
-            tabLayout.getTabAt(1).setIcon(R.drawable.ic_public_white_24px);
-            tabLayout.getTabAt(2).setIcon(R.drawable.ic_person_add_white_24px);
-            tabLayout.getTabAt(3).setIcon(R.drawable.ic_chat_white_24px);
+        tabLayout.getTabAt(0).setIcon(R.drawable.ic_search_white_24px);
+        tabLayout.getTabAt(1).setIcon(R.drawable.ic_public_white_24px);
+        tabLayout.getTabAt(2).setIcon(R.drawable.ic_person_add_white_24px);
+        tabLayout.getTabAt(3).setIcon(R.drawable.ic_chat_white_24px);
 
-            viewPager.setPageTransformer(true, new FragmentPageTransformer());
+        viewPager.setPageTransformer(true, new FragmentPageTransformer());
 
     }
 
@@ -264,6 +326,13 @@ public class MainActivity extends AppCompatActivity
                 intent = new Intent(this, ProfileEditorActivity.class);
                 startActivity(intent);
                 break;
+
+            case R.id.nav_move:
+                AutoCompleteHelper.startAutoCompleteActivity(
+                        MainActivity.this,
+                        RC_PLACE_AUTOCOMPLETE);
+                break;
+
             /**
              * Signs the firebase authenticated user out of the application and TODO removes cached
              * data on phone.
@@ -283,9 +352,9 @@ public class MainActivity extends AppCompatActivity
 
     private void removeUserData() {
         //writes blank user to file... could just write method that removes the file
-        FileHelper.writeObjectToFile(this, new User(), FileHelper.USER_OBJECT_FILE);
-
-
+        deleteFile(FileManager.USER_OBJECT_FILE);
+        boolean bitmapDeleted = deleteBitmapFile(this, FileManager.CITY_PHOTO_FILE);
+        Log.d(LOG_TAG, "Deleted city photo " + bitmapDeleted);
 
         int deleted = getContentResolver().delete(
                 FriendRequestsContract.FriendRequestEntry.CONTENT_URI,
@@ -297,4 +366,39 @@ public class MainActivity extends AppCompatActivity
 
 
     }
+
+
+    private void checkSelfPermissions() {
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE +
+                        ContextCompat.checkSelfPermission(this,
+                                android.Manifest.permission.READ_EXTERNAL_STORAGE))
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                        RC_HANDLE_WRITE_EXTERNAL_PERM);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
+
+    }
+
+
 }

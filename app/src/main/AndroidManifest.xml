@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ventoray.shaut">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -63,7 +65,13 @@
             android:permission="android.permission.BIND_JOB_SERVICE" />
         <service
             android:name=".widget.RespondToRequestService"
-            android:exported="false"></service>
+            android:exported="false" />
+
+        <!-- <receiver -->
+        <!-- android:name=".util.NetworkStateReceiver" -->
+        <!-- android:enabled="true" -->
+        <!-- android:exported="true"/> -->
+        <activity android:name=".BaseActivity"></activity>
     </application>
 
 </manifest>

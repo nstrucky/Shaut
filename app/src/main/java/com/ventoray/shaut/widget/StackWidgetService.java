@@ -1,24 +1,16 @@
 package com.ventoray.shaut.widget;
 
-import android.app.PendingIntent;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
-import com.bumptech.glide.Glide;
-import com.squareup.picasso.Picasso;
 import com.ventoray.shaut.R;
-import com.ventoray.shaut.util.FileHelper;
+import com.ventoray.shaut.util.FileManager;
 
 import static com.ventoray.shaut.client_data.FriendRequestsContract.BASE_CONTENT_URI;
 import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_IMAGE_URL;
@@ -93,7 +85,7 @@ class RemoteStackViewFactory implements RemoteViewsService.RemoteViewsFactory {
                 cursor.getString(cursor.getColumnIndex(COLUMN_REQUESTER_USER_KEY));
 
 
-        Bitmap bitmap = FileHelper.getBitmapFromURL(imageUrl);
+        Bitmap bitmap = FileManager.getBitmapFromURL(imageUrl);
         if (bitmap != null) {
             views.setImageViewBitmap(R.id.imageView_profilePicture, bitmap);
         } else {

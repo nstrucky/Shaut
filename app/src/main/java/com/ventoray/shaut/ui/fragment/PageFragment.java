@@ -15,14 +15,11 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,7 +44,7 @@ import com.ventoray.shaut.ui.adapter.ChatroomsAdapter;
 import com.ventoray.shaut.ui.adapter.FriendFinderAdapter;
 import com.ventoray.shaut.ui.adapter.FriendReqeustAdapter;
 import com.ventoray.shaut.ui.adapter.ShautsAdapter;
-import com.ventoray.shaut.util.FileHelper;
+import com.ventoray.shaut.util.FileManager;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -161,7 +158,7 @@ public class PageFragment extends Fragment {
         showEditText = false;
 
         setPageType(savedInstanceState);
-        userObject = (User) FileHelper.readObjectFromFile(getContext(), FileHelper.USER_OBJECT_FILE);
+        userObject = (User) FileManager.readObjectFromFile(getContext(), FileManager.USER_OBJECT_FILE);
         db = FirebaseFirestore.getInstance();
 
         if (savedInstanceState != null && savedInstanceState.containsKey(OUTSTATE_OBJECT_LIST)) {
@@ -264,13 +261,12 @@ public class PageFragment extends Fragment {
                 }
 
 
-                if (textInputLayout.getVisibility() == View.VISIBLE) {
+                if (textInputLayout != null &&
+                        textInputLayout.getVisibility() == View.VISIBLE) {
                     editTextContent = shautEditText.getText().toString();
                     outState.putString(OUTSTATE_EDITTEXT_CONTENT, editTextContent);
                     outState.putBoolean(OUTSTATE_SHOW_EDITTEXT, true);
                 }
-
-
 
                 break;
 
@@ -544,7 +540,7 @@ public class PageFragment extends Fragment {
      * main activity
      */
     private void refreshFriendFinder() {
-        userObject = (User) FileHelper.readObjectFromFile(getContext(), FileHelper.USER_OBJECT_FILE);
+        userObject = (User) FileManager.readObjectFromFile(getContext(), FileManager.USER_OBJECT_FILE);
         Query query = db.collection(FirebaseContract.UsersCollection.NAME);
         String cityKey = userObject.getCityKey();
         if (onLast) {
@@ -654,7 +650,7 @@ public class PageFragment extends Fragment {
     private void addShautsToView() {
         Query query = db.collection(FirebaseContract.ShautsCollection.NAME);
         userObject =
-                (User) FileHelper.readObjectFromFile(getContext(), FileHelper.USER_OBJECT_FILE);
+                (User) FileManager.readObjectFromFile(getContext(), FileManager.USER_OBJECT_FILE);
         String cityKey = userObject.getCityKey();
 
         query = query

@@ -1,7 +1,5 @@
 package com.ventoray.shaut.client_data;
 
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -16,7 +14,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.model.FriendRequest;
 import com.ventoray.shaut.model.User;
-import com.ventoray.shaut.util.FileHelper;
+import com.ventoray.shaut.util.FileManager;
 
 import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_CITY_KEY;
 import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_CITY_NAME;
@@ -55,7 +53,7 @@ public class DataTasks {
     private static void getFriendRequests(final Context context) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         User userObject =
-                (User) FileHelper.readObjectFromFile(context, FileHelper.USER_OBJECT_FILE);
+                (User) FileManager.readObjectFromFile(context, FileManager.USER_OBJECT_FILE);
         if (userObject == null || userObject.getUserKey() == null) {
             Log.d(LOG_TAG, "No user object!");
             return;

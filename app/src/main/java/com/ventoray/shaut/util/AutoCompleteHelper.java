@@ -47,6 +47,10 @@ public class AutoCompleteHelper {
         void onPlaceDetected(String likelyCity);
     }
 
+    public interface OnPhotoRetrievedListener {
+        void onPhotoRetrieved(Bitmap bitmap);
+    }
+
 
     /**
      * Builds a consistent autoCompleteFilter
@@ -96,7 +100,7 @@ public class AutoCompleteHelper {
     }
 
     public static void getPlacePhoto(final Context context,
-                                     String placeId, final ImageView imageView) {
+                                     String placeId, final OnPhotoRetrievedListener photoListener) {
         final GeoDataClient geoDataClient = Places.getGeoDataClient(context, null);
 
         Task<PlacePhotoMetadataResponse> photoMetadataResponseTask = geoDataClient
@@ -109,7 +113,14 @@ public class AutoCompleteHelper {
                 // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
                 PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
                 // Get the first photo in the list.
-                PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
+                PlacePhotoMetadata photoMetadata = null;
+                try {
+                    photoMetadata = photoMetadataBuffer.get(0);
+                } catch (IllegalStateException e) {
+                    Log.e("AutoCompleteHelper", "Error: "+e.getMessage());
+                }
+
+                if (photoMetadata == null) return;//probably an error
 
                 // Get the attribution text.
                 CharSequence attribution = photoMetadata.getAttributions();
@@ -121,10 +132,7 @@ public class AutoCompleteHelper {
                         PlacePhotoResponse photo = task.getResult();
                         Bitmap bitmap = photo.getBitmap();
 
-                        Glide.with(context)
-                                .asBitmap()
-                                .load(bitmap)
-                                .into(imageView);
+                        photoListener.onPhotoRetrieved(bitmap);
                     }
                 });
             }
@@ -138,35 +146,35 @@ public class AutoCompleteHelper {
      * @param placeListener
      * @throws SecurityException
      */
-    public static void getCurrentPlace(Context context, final CurrentPlaceListener placeListener) throws SecurityException {
-        PlaceDetectionClient placeDetectionClient = Places.getPlaceDetectionClient(context, null);
-        Task<PlaceLikelihoodBufferResponse> placeResult = placeDetectionClient.getCurrentPlace(null);
-        placeResult.addOnCompleteListener(new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
-            @Override
-            public void onComplete(@NonNull Task<PlaceLikelihoodBufferResponse> task) {
-                PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
-                PlaceLikelihood mostLikely = null;
-                for (PlaceLikelihood placeLikelihood : likelyPlaces) {
-
-                    if (mostLikely == null) {
-                        mostLikely = placeLikelihood;
-                    } else if (mostLikely.getLikelihood() <= placeLikelihood.getLikelihood()) {
-                        mostLikely = placeLikelihood;
-                    }
-
-                    Log.i(TAG, String.format("Place '%s' has likelihood: %g",
-                            placeLikelihood.getPlace().getName(),
-                            placeLikelihood.getLikelihood()));
-
-
-                }
-
-                String likelyCity = getLikelyCityName(mostLikely.getPlace().getAddress().toString());
-//                placeListener.onPlaceDetected(likelyCity);
-                likelyPlaces.release();
-            }
-        });
-    }
+//    public static void getCurrentPlace(Context context, final CurrentPlaceListener placeListener) throws SecurityException {
+//        PlaceDetectionClient placeDetectionClient = Places.getPlaceDetectionClient(context, null);
+//        Task<PlaceLikelihoodBufferResponse> placeResult = placeDetectionClient.getCurrentPlace(null);
+//        placeResult.addOnCompleteListener(new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
+//            @Override
+//            public void onComplete(@NonNull Task<PlaceLikelihoodBufferResponse> task) {
+//                PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
+//                PlaceLikelihood mostLikely = null;
+//                for (PlaceLikelihood placeLikelihood : likelyPlaces) {
+//
+//                    if (mostLikely == null) {
+//                        mostLikely = placeLikelihood;
+//                    } else if (mostLikely.getLikelihood() <= placeLikelihood.getLikelihood()) {
+//                        mostLikely = placeLikelihood;
+//                    }
+//
+//                    Log.i(TAG, String.format("Place '%s' has likelihood: %g",
+//                            placeLikelihood.getPlace().getName(),
+//                            placeLikelihood.getLikelihood()));
+//
+//
+//                }
+//
+//                String likelyCity = getLikelyCityName(mostLikely.getPlace().getAddress().toString());
+////                placeListener.onPlaceDetected(likelyCity);
+//                likelyPlaces.release();
+//            }
+//        });
+//    }
 
     /**
      * Requests permission for location detection explicitly

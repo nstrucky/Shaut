@@ -1,26 +1,14 @@
 package com.ventoray.shaut.widget;
 
 import android.app.IntentService;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.ventoray.shaut.R;
-import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.firebase.Write;
 import com.ventoray.shaut.model.FriendRequest;
 import com.ventoray.shaut.model.User;
-import com.ventoray.shaut.util.FileHelper;
-
-import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_POTENTIAL_FRIEND_KEY;
-import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_USER_KEY;
-import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.CONTENT_URI;
+import com.ventoray.shaut.util.FileManager;
 
 
 /**
@@ -90,7 +78,7 @@ public class RespondToRequestService extends IntentService {
     private void acceptFriendRequest(String requesterId, String requesterName) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         User userObject =
-                (User) FileHelper.readObjectFromFile(this, FileHelper.USER_OBJECT_FILE);
+                (User) FileManager.readObjectFromFile(this, FileManager.USER_OBJECT_FILE);
         FriendRequest friendRequest = new FriendRequest();
         friendRequest.setRequesterUserKey(requesterId);
         friendRequest.setRequesterUserName(requesterName);

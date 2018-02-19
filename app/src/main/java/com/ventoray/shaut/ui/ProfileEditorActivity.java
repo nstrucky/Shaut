@@ -7,7 +7,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -27,10 +26,11 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
+import com.ventoray.shaut.BaseActivity;
 import com.ventoray.shaut.R;
 import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.model.User;
-import com.ventoray.shaut.util.FileHelper;
+import com.ventoray.shaut.util.FileManager;
 
 import java.io.ByteArrayOutputStream;
 
@@ -39,7 +39,7 @@ import butterknife.ButterKnife;
 
 import static com.ventoray.shaut.firebase.FirebaseStorageContract.PublicDirectory.PROFILE_PICS_DIRECTORY;
 
-public class ProfileEditorActivity extends AppCompatActivity {
+public class ProfileEditorActivity extends BaseActivity {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.editText_profileText)
@@ -72,7 +72,7 @@ public class ProfileEditorActivity extends AppCompatActivity {
         setUpActionBar();
         storageReference = FirebaseStorage.getInstance().getReference();
         userObject = (User)
-                FileHelper.readObjectFromFile(this, FileHelper.USER_OBJECT_FILE);
+                FileManager.readObjectFromFile(this, FileManager.USER_OBJECT_FILE);
 
         setUserData();
     }
@@ -204,8 +204,8 @@ public class ProfileEditorActivity extends AppCompatActivity {
 
     private void saveUserDataToFirebase() {
         userObject.setProfileSummary(profileSummaryEditText.getText().toString());
-        FileHelper.writeObjectToFile(ProfileEditorActivity.this,
-                userObject, FileHelper.USER_OBJECT_FILE);
+        FileManager.writeObjectToFile(ProfileEditorActivity.this,
+                userObject, FileManager.USER_OBJECT_FILE);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db
                 .collection(FirebaseContract.UsersCollection.NAME)

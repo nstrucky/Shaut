@@ -3,7 +3,6 @@ package com.ventoray.shaut.ui;
 import android.content.Intent;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.ventoray.shaut.BaseActivity;
 import com.ventoray.shaut.R;
 import com.ventoray.shaut.firebase.FirebaseContract;
 import com.ventoray.shaut.firebase.Write;
@@ -26,7 +26,7 @@ import com.ventoray.shaut.model.ChatMessage;
 import com.ventoray.shaut.model.ChatMetaData;
 import com.ventoray.shaut.model.User;
 import com.ventoray.shaut.ui.adapter.ChatMessageAdapter;
-import com.ventoray.shaut.util.FileHelper;
+import com.ventoray.shaut.util.FileManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MessageActivity extends AppCompatActivity {
+public class MessageActivity extends BaseActivity {
 
     public static final String LOG_TAG = "MessageActivity";
     public static final String PARCEL_KEY_CHAT_META_DATA =
@@ -83,7 +83,7 @@ public class MessageActivity extends AppCompatActivity {
             userChatMetaData = (ChatMetaData) intent.getParcelableExtra(PARCEL_KEY_CHAT_META_DATA);
         }
         userObject =
-                (User) FileHelper.readObjectFromFile(this, FileHelper.USER_OBJECT_FILE);
+                (User) FileManager.readObjectFromFile(this, FileManager.USER_OBJECT_FILE);
     }
 
     private void setSendButtonListener() {
