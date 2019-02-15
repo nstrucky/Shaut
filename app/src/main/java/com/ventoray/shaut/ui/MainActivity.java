@@ -34,7 +34,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 import com.ventoray.shaut.BaseActivity;
-import com.ventoray.shaut.Manifest;
+//import com.ventoray.shaut.Manifest;
 import com.ventoray.shaut.client_data.FriendRequestsContract;
 import com.ventoray.shaut.client_data.JobUtils;
 import com.ventoray.shaut.firebase.AuthHelper;

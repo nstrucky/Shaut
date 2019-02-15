@@ -18,8 +18,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -173,7 +176,7 @@ public class ProfileEditorActivity extends BaseActivity {
             Log.e(LOG_TAG, "Could not use userId: " + userId);
 
         }
-        StorageReference profilePicRef = storageReference.child(PROFILE_PICS_DIRECTORY)
+        final StorageReference profilePicRef = storageReference.child(PROFILE_PICS_DIRECTORY)
                 .child(userId);
 
         if (newProfileBitmap == null) {
@@ -186,18 +189,25 @@ public class ProfileEditorActivity extends BaseActivity {
         byte[] picBytes = boas.toByteArray();
 
         UploadTask uploadTask = profilePicRef.putBytes(picBytes);
-        uploadTask.addOnFailureListener(new OnFailureListener() {
+
+        Task<Uri> uriTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
             @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e(LOG_TAG, "Firebase Storage Error: " + e.getLocalizedMessage());
+            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()) {
+                    if (task.getException() != null)
+                    throw task.getException();
+                }
+                return profilePicRef.getDownloadUrl();
             }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
             @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                Log.d(LOG_TAG, "User Profile Pic: " + downloadUrl.toString());
-                userObject.setProfileImageUrl(downloadUrl.toString());
-                saveUserDataToFirebase();
+            public void onComplete(@NonNull Task<Uri> task) {
+                if (task.isSuccessful()) {
+                    Uri downloadUrl = task.getResult();
+                    Log.d(LOG_TAG, "User Profile Pic: " + downloadUrl.toString());
+                    userObject.setProfileImageUrl(downloadUrl.toString());
+                    saveUserDataToFirebase();
+                }
             }
         });
     }

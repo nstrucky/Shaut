@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -39,7 +40,6 @@ public class PreSignInActivity extends BaseActivity {
         db = FirebaseFirestore.getInstance();
 
     }
-
 
     /**
      * The sign in logic is placed here because onResume seems to be called after
