@@ -51,6 +51,7 @@ public class DataTasks {
 
 
     private static void getFriendRequests(final Context context) {
+        Log.d(LOG_TAG, "Getting Friend Requests");
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         User userObject =
                 (User) FileManager.readObjectFromFile(context, FileManager.USER_OBJECT_FILE);
@@ -68,6 +69,7 @@ public class DataTasks {
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot documentSnapshots) {
+                        Log.d(LOG_TAG, "Success Listener");
                         if (documentSnapshots != null && documentSnapshots.size() > 0) {
                             for (DocumentSnapshot documentSnapshot : documentSnapshots) {
                                 FriendRequest request =

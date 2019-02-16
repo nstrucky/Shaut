@@ -24,7 +24,7 @@ public class StackWidgetProvider extends AppWidgetProvider {
         serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_stackview);
-        views.setRemoteAdapter(R.id.widget_stackview, serviceIntent);
+            views.setRemoteAdapter(R.id.widget_stackview, serviceIntent);
         views.setEmptyView(R.id.widget_stackview, R.id.textview_empty_stack);
 
         //Button intents

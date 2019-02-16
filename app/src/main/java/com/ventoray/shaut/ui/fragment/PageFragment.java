@@ -515,16 +515,26 @@ public class PageFragment extends Fragment {
                 new FriendFinderAdapter.OnFriendRequetedCallback() {
                     @Override
                     public void onFriendRequested(FriendRequest friendRequest) {
-                        Toast.makeText(getContext(),
-                                R.string.friend_request_sent,
-                                Toast.LENGTH_SHORT).show();
-                        Write.sendFriendRequest(friendRequest, userObject, db, null);
+
+                        Write.sendFriendRequest(friendRequest, userObject, db, new OnSuccessListener() {
+                            @Override
+                            public void onSuccess(Object o) {
+                                Log.d(LOG_TAG, "hit success listener");
+                                Toast.makeText(getContext(),
+                                        R.string.friend_request_sent,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 });
         recyclerView.setAdapter(adapter);
 
+        String cityKey = null;
 
-        String cityKey = userObject.getCityKey();
+        if (userObject != null) {
+            cityKey = userObject.getCityKey();
+        }
+
         if (cityKey == null) {
             Toast.makeText(PageFragment.this.getContext(), "No City", Toast.LENGTH_SHORT).show();
             return;
@@ -699,7 +709,12 @@ public class PageFragment extends Fragment {
         Query query = db.collection(FirebaseContract.ShautsCollection.NAME);
         userObject =
                 (User) FileManager.readObjectFromFile(getContext(), FileManager.USER_OBJECT_FILE);
-        String cityKey = userObject.getCityKey();
+
+        String cityKey = null;
+        if (userObject != null) {
+            cityKey = userObject.getCityKey();
+        }
+
 
         query = query
                 .whereEqualTo(FirebaseContract.ShautsCollection.Shauts.FIELD_CITY_KEY, cityKey)
