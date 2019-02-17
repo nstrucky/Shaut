@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
@@ -34,7 +35,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 import com.ventoray.shaut.BaseActivity;
-//import com.ventoray.shaut.Manifest;
 import com.ventoray.shaut.client_data.FriendRequestsContract;
 import com.ventoray.shaut.client_data.JobUtils;
 import com.ventoray.shaut.firebase.AuthHelper;
@@ -45,6 +45,7 @@ import com.ventoray.shaut.R;
 import com.ventoray.shaut.ui.util.FragmentPageTransformer;
 import com.ventoray.shaut.util.AutoCompleteHelper;
 import com.ventoray.shaut.util.FileManager;
+import com.ventoray.shaut.widget.Utils;
 
 
 import java.util.Date;
@@ -52,6 +53,7 @@ import java.util.Date;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.ventoray.shaut.client_data.JobUtils.FRIEND_REQUEST_PULL_JOB_TAG;
 import static com.ventoray.shaut.ui.PreSignInActivity.USER_SIGNED_IN_ALREADY_KEY;
 import static com.ventoray.shaut.util.FileManager.USER_OBJECT_FILE;
 import static com.ventoray.shaut.util.FileManager.deleteBitmapFile;
@@ -69,6 +71,7 @@ public class MainActivity extends BaseActivity
 
     private User userObject;
     private FirebaseFirestore db;
+    private FirebaseJobDispatcher dispatcher;
 
     @BindView(R.id.viewPager_main)
     ViewPager viewPager;
@@ -87,7 +90,7 @@ public class MainActivity extends BaseActivity
         setUpNavDrawer();
         setUpViewPager();
         AutoCompleteHelper.initializePlaceAutoComplete(this, fragmentPlaceListener);
-        JobUtils.scheduleFriendRequestPull(getApplicationContext());
+        dispatcher = JobUtils.scheduleFriendRequestPull(getApplicationContext());
 
     }
 
@@ -331,6 +334,9 @@ public class MainActivity extends BaseActivity
 
             case R.id.nav_logout:
                 removeUserData();
+                if (dispatcher != null) {
+                    dispatcher.cancel(FRIEND_REQUEST_PULL_JOB_TAG);
+                }
                 AuthHelper.signOut(this);
 
                 break;
@@ -353,7 +359,7 @@ public class MainActivity extends BaseActivity
                 null,
                 null
         );
-
+        Utils.notifyAppWidget(getApplicationContext());
         Log.d(LOG_TAG, "Deleted " + deleted + " records on sign out");
 
 

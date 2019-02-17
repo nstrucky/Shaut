@@ -18,6 +18,10 @@ import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendReques
 import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_USER_NAME;
 import static com.ventoray.shaut.client_data.FriendRequestsContract.PATH_FRIEND_REQUESTS;
 
+
+/**
+ * RemoteViewsService allows remote adapters to request remote view objects
+ */
 public class StackWidgetService extends RemoteViewsService {
 
 
@@ -29,34 +33,36 @@ public class StackWidgetService extends RemoteViewsService {
 
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        return new RemoteStackViewFactory(this.getApplicationContext());
+        return new RemoteStackViewFactory(this.getApplicationContext(), intent);
     }
 }
 
+/**
+ * interface for an adapter between a collection (stackview) and underlying data
+ */
 class RemoteStackViewFactory implements RemoteViewsService.RemoteViewsFactory {
 
     private Context context;
     private Cursor cursor;
+    private Uri REQUESTS_URI;
 
-    public RemoteStackViewFactory(Context context) {
+    public RemoteStackViewFactory(Context context, Intent intent) {
         this.context = context;
     }
 
 
     @Override
     public void onCreate() {
-
-    }
-
-    @Override
-    public void onDataSetChanged() {
-        Uri REQUESTS_URI = BASE_CONTENT_URI
+        REQUESTS_URI = BASE_CONTENT_URI
                 .buildUpon()
                 .appendPath(PATH_FRIEND_REQUESTS)
                 .build();
 
         if (cursor != null) cursor.close();
+    }
 
+    @Override
+    public void onDataSetChanged() {
         cursor = context.getContentResolver()
                 .query(REQUESTS_URI,
                         null,
@@ -107,7 +113,6 @@ class RemoteStackViewFactory implements RemoteViewsService.RemoteViewsFactory {
         Intent acceptFillIntent = new Intent();
         acceptFillIntent.putExtras(extras);
         acceptFillIntent.setAction(RespondToRequestService.ACTION_ACCEPT_FRIEND_REQUEST);
-
 
         //Decline request fill intent
         Intent declineFillIntent = new Intent();

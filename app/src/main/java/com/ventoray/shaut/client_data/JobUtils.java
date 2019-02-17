@@ -17,19 +17,19 @@ import com.firebase.jobdispatcher.Trigger;
 
 public class JobUtils {
 
-    private static final String FRIEND_REQUEST_PULL_JOB_TAG = "friendRequestPullJobTag";
+    public static final String FRIEND_REQUEST_PULL_JOB_TAG = "friendRequestPullJobTag";
     private static boolean initializedFriendRequestPull;
 
     private static final int REQUEST_PULL_INTERVAL_SECONDS = 30;
     private static final int SYCN_FLEXTIME_SECONDS = 5;
 
 
-    synchronized public static void scheduleFriendRequestPull(@NonNull final Context contxt) {
-        if (initializedFriendRequestPull) return;
+    synchronized public static FirebaseJobDispatcher scheduleFriendRequestPull(@NonNull final Context contxt) {
+        if (initializedFriendRequestPull) return null;
         Driver driver = new GooglePlayDriver(contxt);
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
 
-        Job constraintFriendReuquestJob = dispatcher.newJobBuilder()
+        Job constraintFriendRequestJob = dispatcher.newJobBuilder()
                 .setService(FriendRequestPullService.class)
                 .setTag(FRIEND_REQUEST_PULL_JOB_TAG)
                 .setLifetime(Lifetime.FOREVER)
@@ -39,7 +39,9 @@ public class JobUtils {
                 .setReplaceCurrent(true)
                 .build();
 
-        dispatcher.schedule(constraintFriendReuquestJob);
+        dispatcher.schedule(constraintFriendRequestJob);
         initializedFriendRequestPull = true;
+
+        return dispatcher;
     }
 }

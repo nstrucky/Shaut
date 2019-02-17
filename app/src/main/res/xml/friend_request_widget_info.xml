@@ -4,7 +4,7 @@
     android:initialLayout="@layout/widget_stackview"
     android:minHeight="@dimen/widget_height"
     android:minWidth="@dimen/widget_width"
-    android:previewImage="@drawable/example_appwidget_preview"
+    android:previewImage="@drawable/logo_ventoray_512x512"
     android:updatePeriodMillis="86000000"
     android:widgetCategory="home_screen">
 
