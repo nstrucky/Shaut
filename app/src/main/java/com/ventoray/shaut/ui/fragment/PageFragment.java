@@ -41,6 +41,7 @@ import com.ventoray.shaut.model.ChatMetaData;
 import com.ventoray.shaut.model.FriendRequest;
 import com.ventoray.shaut.model.Shaut;
 import com.ventoray.shaut.model.User;
+import com.ventoray.shaut.ui.MainActivity;
 import com.ventoray.shaut.ui.MessageActivity;
 import com.ventoray.shaut.ui.adapter.ChatroomsAdapter;
 import com.ventoray.shaut.ui.adapter.FriendFinderAdapter;
@@ -101,6 +102,7 @@ public class PageFragment extends Fragment {
     public static final int PAGINATION_LIMIT = 5;
 
     private static final String LOG_TAG = "PageFragment";
+
 
     //Chatrooms page
     private ListenerRegistration chatroomsReg;
@@ -220,6 +222,7 @@ public class PageFragment extends Fragment {
                 linearLayoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setLayoutManager(linearLayoutManager);
+        createFriendRequestListener(getContext());
         initializeSwipeRefreshLayout(view);
 
         try {
@@ -227,7 +230,6 @@ public class PageFragment extends Fragment {
         } catch (IllegalArgumentException e) {
             Log.e(LOG_TAG, e.getLocalizedMessage());
         }
-
         return view;
     }
 
@@ -429,6 +431,7 @@ public class PageFragment extends Fragment {
      * Friend request page methods
      **********************************************************************************************/
     private void initializeFriendRequestsPage() {
+
         Query friendRequestQuery = db.collection(FirebaseContract.UsersCollection.NAME)
                 .document(userObject.getUserKey())
                 .collection(FirebaseContract.UsersCollection.User.StrangersRequestCollection.NAME);
@@ -445,23 +448,28 @@ public class PageFragment extends Fragment {
                 friendRequestQuery.addSnapshotListener(friendRequestListener);
     }
 
-    EventListener<QuerySnapshot> friendRequestListener = new EventListener<QuerySnapshot>() {
-        @Override
-        public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
-            friendRequests.clear();
-            if (documentSnapshots != null && documentSnapshots.size() > 0) {
-                for (DocumentSnapshot documentSnapshot : documentSnapshots) {
-                    FriendRequest request = documentSnapshot.toObject(FriendRequest.class);
-                    friendRequests.add(request);
-                }
-                adapter.notifyDataSetChanged();
-                emptyTextVisiblity();
+    EventListener<QuerySnapshot> friendRequestListener;
 
-                if (friendRequests == null || friendRequests.size() < 0) return;
-                refreshFriendRequests(getContext(), friendRequests);
+    private void createFriendRequestListener(final Context context) {
+        friendRequestListener = new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
+                friendRequests.clear();
+                if (documentSnapshots != null && documentSnapshots.size() > 0) {
+                    for (DocumentSnapshot documentSnapshot : documentSnapshots) {
+                        FriendRequest request = documentSnapshot.toObject(FriendRequest.class);
+                        friendRequests.add(request);
+                    }
+                    adapter.notifyDataSetChanged();
+                    emptyTextVisiblity();
+
+                    if (friendRequests == null || friendRequests.size() < 0) return;
+                    refreshFriendRequests(context, friendRequests);
+                }
             }
-        }
-    };
+        };
+    }
+
 
     /**
      * Handles the logic for responding to a stranger's friend request.
@@ -499,6 +507,10 @@ public class PageFragment extends Fragment {
 
         int deleted = getContext().getContentResolver()
                 .delete(CONTENT_URI, COLUMN_REQUESTER_USER_KEY, args);
+
+        friendRequests.remove(friendRequest);
+
+        adapter.notifyDataSetChanged();
 
         Log.d(LOG_TAG, "Deleted " + deleted + " records");
     }

@@ -362,7 +362,6 @@ public class MainActivity extends BaseActivity
         Utils.notifyAppWidget(getApplicationContext());
         Log.d(LOG_TAG, "Deleted " + deleted + " records on sign out");
 
-
     }
 
 
