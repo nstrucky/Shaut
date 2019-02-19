@@ -48,6 +48,7 @@ import com.ventoray.shaut.ui.adapter.FriendFinderAdapter;
 import com.ventoray.shaut.ui.adapter.FriendReqeustAdapter;
 import com.ventoray.shaut.ui.adapter.ShautsAdapter;
 import com.ventoray.shaut.util.FileManager;
+import com.ventoray.shaut.widget.Utils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -497,22 +498,20 @@ public class PageFragment extends Fragment {
      * @param friendRequest
      */
     private void deleteFriendRequest(FriendRequest friendRequest) {
-        db.collection(FirebaseContract.UsersCollection.NAME)
-                .document(userObject.getUserKey())
-                .collection(FirebaseContract.UsersCollection.User.StrangersRequestCollection.NAME)
-                .document(friendRequest.getRequesterUserKey())
-                .delete();
-
-        String[] args = new String[]{friendRequest.getRequesterUserKey()};
-
-        int deleted = getContext().getContentResolver()
-                .delete(CONTENT_URI, COLUMN_REQUESTER_USER_KEY, args);
-
+        final String requesterUserKey = friendRequest.getRequesterUserKey();
+        Write.deleteFriendRequest(friendRequest.getRequesterUserKey(),
+                new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        int deleted = getContext().getContentResolver().delete(CONTENT_URI,
+                                COLUMN_REQUESTER_USER_KEY, new String[]{requesterUserKey});
+                        Log.i(LOG_TAG, "Deleted " + deleted + " records");
+                        Utils.notifyAppWidget(getContext());
+                    }
+                });
         friendRequests.remove(friendRequest);
-
         adapter.notifyDataSetChanged();
 
-        Log.d(LOG_TAG, "Deleted " + deleted + " records");
     }
 
 

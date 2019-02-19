@@ -45,7 +45,7 @@ public class FileManager {
                 + "/Files");
         Bitmap bitmap = null;
 
-
+        Log.d(LOG_TAG, "Bitmap Path: " + mediaStorageDir.getAbsolutePath());
         bitmap = BitmapFactory.decodeFile(mediaStorageDir.getPath() + File.separator + fileName);
         return bitmap;
     }
@@ -106,6 +106,7 @@ public class FileManager {
                 return;
             }
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+            Log.i(LOG_TAG, "Writing Bitmap to file " + pictureFile.getCanonicalPath());
 
         } catch (Exception e) {
             Log.e(LOG_TAG, "Error: " + e.getMessage());

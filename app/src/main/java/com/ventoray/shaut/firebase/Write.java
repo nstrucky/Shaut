@@ -119,28 +119,18 @@ public class Write {
      * Deletes any pending friend requests taking just the context and requester's user ID.
      * This will trigger deletion from the sqlite database only once the success listener from
      * firebase returns successful.
-     * @param context
-     * @param requesterId
+     * @param requesterUserKey
      */
-    public static void deleteFriendRequest(final Context context, final String requesterId) {
+    public static void deleteFriendRequest(final String requesterUserKey, OnSuccessListener<Void> listener) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db
                 .collection(FirebaseContract.UsersCollection.NAME)
                 .document(userId)
                 .collection(FirebaseContract.UsersCollection.User.StrangersRequestCollection.NAME)
-                .document(requesterId)
+                .document(requesterUserKey)
                 .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        int deleted = context.getContentResolver().delete(CONTENT_URI,
-                                COLUMN_REQUESTER_USER_KEY, new String[]{requesterId});
-                        Log.d(LOG_TAG, "Deleted " + deleted + " records");
-
-                        Utils.notifyAppWidget(context);
-                    }
-                });
+                .addOnSuccessListener(listener);
     }
 
     /**
@@ -202,7 +192,9 @@ public class Write {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (!task.isSuccessful()) {
-                    Log.d(LOG_TAG, task.getException().getMessage());
+
+                    Log.d(LOG_TAG, task.getException() != null ?
+                                    task.getException().getMessage() : "Exception");
                 } else {
                     db.collection(FirebaseContract.UsersCollection.NAME)
                             .document(userObject.getUserKey())

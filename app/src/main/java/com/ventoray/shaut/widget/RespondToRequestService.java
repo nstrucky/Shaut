@@ -4,11 +4,15 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.ventoray.shaut.firebase.Write;
 import com.ventoray.shaut.model.FriendRequest;
 import com.ventoray.shaut.model.User;
 import com.ventoray.shaut.util.FileManager;
+
+import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.COLUMN_REQUESTER_USER_KEY;
+import static com.ventoray.shaut.client_data.FriendRequestsContract.FriendRequestEntry.CONTENT_URI;
 
 
 /**
@@ -53,6 +57,7 @@ public class RespondToRequestService extends IntentService {
 
     /**
      * Accept the friend request
+     *
      * @param requesterId
      */
     private void handleActionAccept(String requesterId, String requesterName) {
@@ -63,15 +68,25 @@ public class RespondToRequestService extends IntentService {
 
     /**
      * Decline the friend request
+     *
      * @param requesterId
      */
-    private void handleActionDecline(String requesterId) {
-        Write.deleteFriendRequest( RespondToRequestService.this, requesterId);
+    private void handleActionDecline(final String requesterId) {
+        Write.deleteFriendRequest(requesterId, new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                int deleted = getApplicationContext().getContentResolver().delete(CONTENT_URI,
+                        COLUMN_REQUESTER_USER_KEY, new String[]{requesterId});
+                Log.i(LOG_TAG, "Deleted " + deleted + " records");
+                Utils.notifyAppWidget(getApplicationContext());
+            }
+        });
 
     }
 
     /**
      * Accepts the friend requests and makes a call to Write.initializeFriendship
+     *
      * @param requesterId
      * @param requesterName
      */

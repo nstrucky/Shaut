@@ -165,6 +165,7 @@ public class MainActivity extends BaseActivity
             makeMoveSnackbar();
             return;
         }
+        Log.d(LOG_TAG, "City: " + cityId);
         setCityImageFromFile();
     }
 
@@ -178,7 +179,10 @@ public class MainActivity extends BaseActivity
                     .asBitmap()
                     .load(cityBitmap)
                     .into(cityImageView);
+            return;
         }
+
+        Log.d(LOG_TAG, "City Bitmap is null!");
     }
 
     private void makeMoveSnackbar() {
@@ -254,7 +258,7 @@ public class MainActivity extends BaseActivity
         userEmailAddressTextView.setText(userObject.getUserEmailAddress());
         String picUrl = userObject.getProfileImageUrl();
 
-        if (pullCityImageFromWeb) {
+        if (pullCityImageFromWeb && userObject.getCityKey() != null) {
             AutoCompleteHelper.getPlacePhoto(this, userObject.getCityKey(),
                     new AutoCompleteHelper.OnPhotoRetrievedListener() {
                         @Override
