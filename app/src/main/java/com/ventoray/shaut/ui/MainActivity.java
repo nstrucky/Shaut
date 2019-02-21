@@ -90,7 +90,10 @@ public class MainActivity extends BaseActivity
         setUpNavDrawer();
         setUpViewPager();
         AutoCompleteHelper.initializePlaceAutoComplete(this, fragmentPlaceListener);
-        dispatcher = JobUtils.scheduleFriendRequestPull(getApplicationContext());
+        //Eventually option to turn this job off and on will be added...
+        // also notifications for new friends could be implemented...eh or pushed from server really
+        // but for now job is cancelled when last widget is removed.
+        dispatcher = JobUtils.scheduleFriendRequestPull(this);
 
     }
 
@@ -339,7 +342,9 @@ public class MainActivity extends BaseActivity
             case R.id.nav_logout:
                 removeUserData();
                 if (dispatcher != null) {
-                    dispatcher.cancel(FRIEND_REQUEST_PULL_JOB_TAG);
+                    int result = dispatcher.cancel(FRIEND_REQUEST_PULL_JOB_TAG);
+                    Log.i(LOG_TAG,
+                            "Cancelling Friend Request Pull Job with result: " + result);
                 }
                 AuthHelper.signOut(this);
 

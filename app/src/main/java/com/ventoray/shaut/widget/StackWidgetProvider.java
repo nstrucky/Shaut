@@ -6,14 +6,21 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.ventoray.shaut.R;
+import com.ventoray.shaut.ShautApplication;
+
+import static com.ventoray.shaut.client_data.JobUtils.FRIEND_REQUEST_PULL_JOB_TAG;
 
 /**
  * Implementation of App Widget functionality.
  */
 public class StackWidgetProvider extends AppWidgetProvider {
+
+    private final String LOG_TAG = "StackWidgetProvider";
 
     public static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
@@ -55,6 +62,15 @@ public class StackWidgetProvider extends AppWidgetProvider {
     @Override
     public void onDisabled(Context context) {
         // Enter relevant functionality for when the last widget is disabled
+
+        FirebaseJobDispatcher dispatcher =
+                ((ShautApplication) context.getApplicationContext()).getFirebaseJobDispatcher();
+        if (dispatcher != null) {
+
+            int result = dispatcher.cancel(FRIEND_REQUEST_PULL_JOB_TAG);
+            Log.i(LOG_TAG, "Cancelling Friend Request Pull Service with result: " + result);
+
+        }
         super.onDisabled(context);
     }
 }

@@ -1,5 +1,6 @@
 package com.ventoray.shaut.client_data;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
@@ -10,6 +11,7 @@ import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.Lifetime;
 import com.firebase.jobdispatcher.Trigger;
+import com.ventoray.shaut.ShautApplication;
 
 /**
  * Created by Nick on 2/17/2018.
@@ -24,10 +26,10 @@ public class JobUtils {
     private static final int SYCN_FLEXTIME_SECONDS = 5;
 
 
-    synchronized public static FirebaseJobDispatcher scheduleFriendRequestPull(@NonNull final Context contxt) {
+    synchronized public static FirebaseJobDispatcher scheduleFriendRequestPull(@NonNull final Activity contxt) {
         if (initializedFriendRequestPull) return null;
-        Driver driver = new GooglePlayDriver(contxt);
-        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
+        FirebaseJobDispatcher dispatcher =
+                ((ShautApplication) contxt.getApplication()).getFirebaseJobDispatcher();
 
         Job constraintFriendRequestJob = dispatcher.newJobBuilder()
                 .setService(FriendRequestPullService.class)
