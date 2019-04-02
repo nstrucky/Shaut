@@ -3,6 +3,8 @@ Shaut (pronounced "Shout") is a Twitter meets Tinder Android application.  The i
 
 Once two users have connected, a chat conversation starts between them.  When one user moves to another city, they retain all of their new friends, but enjoy the benefits of seeing people only in their area. 
 
+![](readme_resources/Shaut_walkthrough_1.gif)
+
 ## Project Build
 
 **Firebase Features:**
