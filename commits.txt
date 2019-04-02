@@ -1,0 +1,3 @@
+Added gif for readme:
+* also changed git ignore file
+* Shaut_walkthrough_1.gif
